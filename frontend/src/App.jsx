@@ -18,7 +18,7 @@ const App = () => {
   }, [])
 
   return (
-    <div>
+    <div className='bg-green-400'>
       <h1>Just Demo User Testing</h1>
       <ul>
         {users.map((user) => (
