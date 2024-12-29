@@ -25,6 +25,12 @@ import Moderators from './pages/admin/Moderators'
 import Questions from './pages/admin/Questions'
 import AdminArticles from './pages/admin/Articles'
 
+// Auth Imports
+import SignIn from './pages/auth/SignIn'
+import SignUp from './pages/auth/SignUp'
+
+import SplashScreen from './pages/SplashScreen'
+
 export default function App() {
   return (
     <Router>
@@ -33,8 +39,8 @@ export default function App() {
           <main>
             <Routes>
               {/* Auth routes */}
-
-              {/* to be continued */}
+              <Route path='/auth/signin' element={<SignIn />} />
+              <Route path='/auth/signup' element={<SignUp />} />
 
               {/* User routes */}
               <Route
@@ -90,10 +96,12 @@ export default function App() {
                   </AdminLayout>
                 }
               />
+
+              {/* Any route redirect to SplashScreen page */}
+              <Route path='/' element={<SplashScreen />} />
             </Routes>
           </main>
         </div>
-        <Footer />
       </div>
     </Router>
   )
