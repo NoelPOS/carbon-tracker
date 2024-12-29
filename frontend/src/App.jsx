@@ -17,6 +17,14 @@ import ModeratorArticles from './pages/moderator/ModeratorArticles'
 import CreateArticle from './pages/moderator/CreateArticle'
 import EditArticle from './pages/moderator/EditArticle'
 
+// Admin Imports
+import AdminLayout from './components/admin/AdminLayout'
+import Dashboard from './pages/admin/Dashboard'
+import Users from './pages/admin/Users'
+import Moderators from './pages/admin/Moderators'
+import Questions from './pages/admin/Questions'
+import AdminArticles from './pages/admin/Articles'
+
 export default function App() {
   return (
     <Router>
@@ -24,6 +32,10 @@ export default function App() {
         <div className='flex-grow'>
           <main>
             <Routes>
+              {/* Auth routes */}
+
+              {/* to be continued */}
+
               {/* User routes */}
               <Route
                 path='/user/*'
@@ -60,6 +72,22 @@ export default function App() {
                       <Route path='/profile' element={<Profile />} />
                     </Routes>
                   </ModeratorLayout>
+                }
+              />
+
+              {/* Admin routes */}
+              <Route
+                path='/admin/*'
+                element={
+                  <AdminLayout>
+                    <Routes>
+                      <Route path='/' element={<Dashboard />} />
+                      <Route path='/users' element={<Users />} />
+                      <Route path='/moderators' element={<Moderators />} />
+                      <Route path='/articles' element={<AdminArticles />} />
+                      <Route path='/questions' element={<Questions />} />
+                    </Routes>
+                  </AdminLayout>
                 }
               />
             </Routes>
