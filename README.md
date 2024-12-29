@@ -1,4 +1,3 @@
 ### Still ongoing
 
-User Ui done
-Moderator Ui done
+Frontend with dummy data finished
