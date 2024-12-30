@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import AuthLayout from '../../components/auth/AuthLayout'
 import { validateEmail, validatePassword } from '../../utils/auth'
 
+const axios = require('axios')
+
 export default function SignUp() {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
@@ -34,7 +36,16 @@ export default function SignUp() {
 
     try {
       // Api call
-      navigate('/')
+      const res = await axios.post('http://localhost:3000/api/users/signup', {
+        name: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+      })
+      if (res.status === 201) {
+        navigate('/user')
+      } else {
+        setError('An error occurred during sign up')
+      }
     } catch (err) {
       setError('An error occurred during sign up')
     }

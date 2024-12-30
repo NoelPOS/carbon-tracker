@@ -4,6 +4,9 @@ import AuthLayout from '../../components/auth/AuthLayout'
 import RoleSelector from '../../components/auth/RoleSelector'
 import { ROLE_ROUTES, validateEmail } from '../../utils/auth'
 
+// axios
+const axios = require('axios')
+
 export default function SignIn() {
   const navigate = useNavigate()
   const [role, setRole] = useState('user')
@@ -24,7 +27,15 @@ export default function SignIn() {
 
     try {
       // Api call
-      navigate(ROLE_ROUTES[role])
+      const res = await axios.post(`http://localhost:5000/api/${role}/signin`, {
+        email: formData.email,
+        password: formData.password,
+      })
+      if (res.status === 200) {
+        navigate(ROLE_ROUTES[role])
+      } else {
+        alert('Invalid email or password')
+      }
     } catch (err) {
       setError('Invalid email or password')
     }
