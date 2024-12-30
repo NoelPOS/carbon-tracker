@@ -24,9 +24,8 @@ export default function Questions() {
       options: [...newQuestion.options, { text: '', carbonAmount: 0 }],
     })
   }
-
   return (
-    <div className='space-y-8'>
+    <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
       <div className='rounded-lg bg-white p-6 shadow-sm'>
         <h2 className='text-xl font-semibold'>Create New Question</h2>
         <p className='mt-1 text-sm text-gray-600'>

@@ -57,7 +57,7 @@ export default function Home() {
             Have you taken your daily survey?
           </p>
           <Link
-            to='/survey'
+            to='/user/survey'
             className='mt-4 inline-block rounded-md bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600'
           >
             TAKE SURVEY
