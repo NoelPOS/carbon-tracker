@@ -1,29 +1,26 @@
 // convert to CommonJS:
 const express = require('express')
 const cors = require('cors')
+
 const { client } = require('./db/dbconnect.js')
-const { getAllUsers } = require('./queries/users.js')
+
+const { UserRoute } = require('./routes/user.route.js')
 
 const app = express()
-app.use(cors())
 
 client.connect()
 
+app.use(express.json())
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+  })
+)
+
+app.use('/api/users', UserRoute)
+
 app.get('/', (req, res) => {
   res.send('hello world')
-})
-
-app.get('/users', async (req, res) => {
-  try {
-    const result = await client.query(getAllUsers)
-    res.json(result.rows)
-  } catch (err) {
-    console.log(err)
-    res.status(500).send('Internal Server Error')
-  } finally {
-    // client.end()
-    console.log('query finished')
-  }
 })
 
 app.listen(3000, () => {
