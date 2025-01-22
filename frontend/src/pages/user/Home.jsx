@@ -84,7 +84,7 @@ export default function Home() {
           ))}
         </div>
         <Link
-          to='/leaderboard'
+          to='/user/leaderboard'
           className='mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700'
         >
           SEE MORE
@@ -112,7 +112,7 @@ export default function Home() {
           ))}
         </div>
         <Link
-          to='/articles'
+          to='/user/articles'
           className='mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700'
         >
           SEE MORE ARTICLES

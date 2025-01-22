@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import AuthLayout from '../../components/auth/AuthLayout'
 import { validateEmail, validatePassword } from '../../utils/auth'
 
-const axios = require('axios')
+import axios from 'axios'
 
 export default function SignUp() {
   const navigate = useNavigate()

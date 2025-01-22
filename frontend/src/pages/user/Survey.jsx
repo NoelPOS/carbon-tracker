@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { surveyQuestions } from '../../data/survey-questions'
 import apple from '../../assets/apple.png'
@@ -7,6 +7,7 @@ const previousRecords = [
   { number: 1, date: '20.11.2024', amount: 'Avg: 12.5 kg' },
   { number: 2, date: '15.11.2024', amount: 'Avg: 13.2 kg' },
   { number: 3, date: '2.11.2024', amount: 'Avg: 14.0 kg' },
+  { number: 4, date: '20.10.2024', amount: 'Avg: 12.5 kg' },
 ]
 
 export default function Survey() {
@@ -15,6 +16,7 @@ export default function Survey() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState([])
   const [selectedAnswer, setSelectedAnswer] = useState(null)
+  const [seeMore, setSeeMore] = useState(false)
 
   const handleStartSurvey = () => {
     setCurrentStep('questions')
@@ -50,6 +52,10 @@ export default function Survey() {
     navigate('/')
   }
 
+  const handleToggleSeeMore = () => {
+    setSeeMore((prev) => !prev)
+    console.log(seeMore)
+  }
   if (currentStep === 'start') {
     return (
       <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
@@ -82,7 +88,10 @@ export default function Survey() {
               </tbody>
             </table>
           </div>
-          <button className='mt-4 rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50'>
+          <button
+            onClick={handleToggleSeeMore}
+            className='mt-4 rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50'
+          >
             SEE MORE
           </button>
         </div>

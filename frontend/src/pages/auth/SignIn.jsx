@@ -5,7 +5,7 @@ import RoleSelector from '../../components/auth/RoleSelector'
 import { ROLE_ROUTES, validateEmail } from '../../utils/auth'
 
 // axios
-const axios = require('axios')
+import axios from 'axios'
 
 export default function SignIn() {
   const navigate = useNavigate()
