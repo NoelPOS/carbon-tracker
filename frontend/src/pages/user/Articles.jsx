@@ -76,7 +76,7 @@ export default function Articles() {
                 {article.description}
               </p>
               <Link
-                to={`/articles/${article.id}`}
+                to={`/user/articles/${article.id}`}
                 className='mt-4 inline-block rounded-md bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600'
               >
                 DETAIL
