@@ -21,13 +21,19 @@ const userSignIn = async (req, res) => {
 
 const userSignUp = async (req, res) => {
   try {
-    const { name, email, password } = req.body
-    await client.query(userSignUpQuery, [name, email, password])
-    res.status(201).json({ message: 'User created' })
+    const { name, email, password, address, phone } = req.body;
+
+    if (!name || !email || !password || !address || !phone) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    await client.query(userSignUpQuery, [name, email, password, address, phone]);
+
+    res.status(201).json({ message: 'User created successfully' });
   } catch (err) {
-    res.status(500).json({ message: err.message })
-  } finally {
+    console.error('Error in userSignUp:', err);
+    res.status(500).json({ message: 'Internal server error' });
   }
-}
+};
 
 module.exports = { userSignIn, userSignUp }

@@ -12,3 +12,5 @@ const client = new Client({
 })
 
 module.exports = { client }
+
+console.log('DB connected')
