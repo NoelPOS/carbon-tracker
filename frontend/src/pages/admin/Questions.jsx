@@ -124,7 +124,7 @@ export default function Questions() {
         </form>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-6 mt-5">
         <h2 className="text-xl font-semibold">Question List</h2>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {questions.map((question, index) => (
