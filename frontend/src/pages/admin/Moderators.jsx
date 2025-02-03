@@ -4,22 +4,23 @@ import Modal from "../../components/ui/AssignModal";
 const moderators = [
   {
     id: "1",
-    name: "Alice Johnson",
-    email: "alice.johnson@example.com",
-    image: "https://randomuser.me/api/port",
-    assignedTasks: 3,
+    name: "John Doe",
+    email: "john.doe@example.com",
+    status: "active",
+    image: "https://randomuser.me/api/portraits/men/1.jpg",
   },
   {
     id: "2",
-    name: "John Doe",
-    email: "john@gmail.com",
-    image: "/profile.jpg",
-    assignedTasks: 5,
+    name: "Jane Smith",
+    email: "jane.smith@example.com",
+    status: "active",
+    image: "https://randomuser.me/api/portraits/women/2.jpg",
   },
 ];
 
 export default function Moderators() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [moderatorList, setModeratorList] = useState(moderators);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [selectedModerator, setSelectedModerator] = useState(null);
   const [assignForm, setAssignForm] = useState({
@@ -27,9 +28,29 @@ export default function Moderators() {
     instruction: "",
   });
 
-  const filteredModerators = moderators.filter((moderator) =>
+  const filteredModerators = moderatorList.filter((moderator) =>
     moderator.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleSuspend = (id) => {
+    if (confirm("Are you sure you want to suspend this moderator?")) {
+      setModeratorList((prevList) =>
+        prevList.map((moderator) =>
+          moderator.id === id
+            ? { ...moderator, status: "suspended" }
+            : moderator
+        )
+      );
+    }
+  };
+
+  const handleDelete = (id) => {
+    if (confirm("Are you sure you want to delete this moderator?")) {
+      setModeratorList((prevList) =>
+        prevList.filter((moderator) => moderator.id !== id)
+      );
+    }
+  };
 
   const handleAssign = (moderator) => {
     setSelectedModerator(moderator);
@@ -59,29 +80,37 @@ export default function Moderators() {
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filteredModerators.map((moderator) => (
-          <div
-            key={moderator.id}
-            className="flex items-center gap-4 rounded-lg bg-white p-6 shadow-sm"
-          >
+          <div key={moderator.id} className="rounded-lg bg-white p-6 shadow-sm">
             <img
               src={moderator.image}
-              alt=""
-              className="h-16 w-16 rounded-full object-cover"
+              alt={moderator.name}
+              className="h-16 w-16 rounded-full object-cover mb-4"
             />
-            <div className="flex-grow">
-              <h3 className="font-semibold">Name: {moderator.name}</h3>
-              <p className="text-sm text-gray-600">{moderator.email}</p>
-              <div className="mt-4 flex gap-2">
-                <button
-                  onClick={() => handleAssign(moderator)}
-                  className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-                >
-                  Assign
-                </button>
-                <button className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
-                  Delete
-                </button>
-              </div>
+            <h3 className="font-semibold">Name: {moderator.name}</h3>
+            <p className="text-sm text-gray-600">{moderator.email}</p>
+            <p className="mt-1 text-sm text-gray-500">
+              Status: {moderator.status}
+            </p>
+
+            <div className="mt-4 flex gap-2">
+              <button
+                onClick={() => handleAssign(moderator)}
+                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                Assign Task
+              </button>
+              <button
+                onClick={() => handleSuspend(moderator.id)}
+                className="rounded-md bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600"
+              >
+                Suspend
+              </button>
+              <button
+                onClick={() => handleDelete(moderator.id)}
+                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+              >
+                Delete
+              </button>
             </div>
           </div>
         ))}

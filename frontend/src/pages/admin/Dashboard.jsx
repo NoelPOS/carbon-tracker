@@ -19,6 +19,7 @@ const Dashboard = () => {
     const instruction = formData.get("instruction");
     setTasks([...tasks, { title, instruction }]);
     form.reset();
+    alert("Task created successfully");
   };
 
   const handleCreateBadge = (e) => {
@@ -29,6 +30,38 @@ const Dashboard = () => {
     const description = formData.get("description");
     setBadges([...badges, { name, description }]);
     form.reset();
+    alert("Badge created successfully");
+  };
+
+  const handleCreateModerator = (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const name = formData.get("name");
+    const email = formData.get("email");
+    const password = formData.get("password");
+    form.reset();
+    alert("Moderator created successfully");
+  };
+
+  const handleAssignTask = (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const moderator = formData.get("moderator");
+    const task = formData.get("task");
+    form.reset();
+    alert("Task assigned successfully");
+  };
+
+  const handleAssignBadge = (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const user = formData.get("user");
+    const badge = formData.get("badge");
+    form.reset();
+    alert("Badge assigned successfully");
   };
 
   return (
@@ -82,7 +115,7 @@ const Dashboard = () => {
                 <h3 className="mb-4 text-lg font-semibold text-gray-900">
                   Create New Moderator
                 </h3>
-                <form className="space-y-9">
+                <form onSubmit={handleCreateModerator} className="space-y-9">
                   <input
                     type="text"
                     placeholder="Name"
@@ -178,7 +211,7 @@ const Dashboard = () => {
             <h3 className="mb-4 text-lg font-semibold text-gray-900">
               Assign Task to Moderator
             </h3>
-            <form className="space-y-4">
+            <form onSubmit={handleAssignTask} className="space-y-4">
               <select className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                 <option value="">Select a moderator</option>
                 <option value="mod1">Moderator 1</option>
@@ -206,7 +239,7 @@ const Dashboard = () => {
             <h3 className="mb-4 text-lg font-semibold text-gray-900">
               Provide Badge to User
             </h3>
-            <form className="space-y-4">
+            <form onSubmit={handleAssignBadge} className="space-y-4">
               <select className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                 <option value="">Select a user</option>
                 <option value="user1">User 1</option>
