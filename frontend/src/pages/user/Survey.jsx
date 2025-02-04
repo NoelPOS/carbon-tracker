@@ -49,7 +49,7 @@ export default function Survey() {
   };
 
   const handleSaveRecord = () => {
-    navigate("/");
+    navigate("/user");
   };
 
   const handleToggleSeeMore = () => {
