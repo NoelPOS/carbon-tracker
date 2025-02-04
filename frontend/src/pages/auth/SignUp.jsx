@@ -19,39 +19,40 @@ export default function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    navigate("/user");
 
-    if (!validateEmail(formData.email)) {
-      setError("Please enter a valid email address");
-      return;
-    }
+    // if (!validateEmail(formData.email)) {
+    //   setError("Please enter a valid email address");
+    //   return;
+    // }
 
-    if (!validatePassword(formData.password)) {
-      setError("Password must be at least 8 characters long");
-      return;
-    }
+    // if (!validatePassword(formData.password)) {
+    //   setError("Password must be at least 8 characters long");
+    //   return;
+    // }
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
+    // if (formData.password !== formData.confirmPassword) {
+    //   setError("Passwords do not match");
+    //   return;
+    // }
 
-    try {
-      const res = await axios.post("http://localhost:3000/api/users/signup", {
-        name: formData.fullName,
-        email: formData.email,
-        password: formData.password,
-        address: formData.address,
-        phone: formData.phone,
-      });
-      if (res.status === 201) {
-        navigate("/user");
-      } else {
-        setError("An error occurred during sign up");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("An error occurred during sign up");
-    }
+    // try {
+    //   const res = await axios.post("http://localhost:3000/api/users/signup", {
+    //     name: formData.fullName,
+    //     email: formData.email,
+    //     password: formData.password,
+    //     address: formData.address,
+    //     phone: formData.phone,
+    //   });
+    //   if (res.status === 201) {
+    //     navigate("/user");
+    //   } else {
+    //     setError("An error occurred during sign up");
+    //   }
+    // } catch (err) {
+    //   console.error(err);
+    //   setError("An error occurred during sign up");
+    // }
   };
 
   return (
