@@ -79,7 +79,6 @@ export default function SignUp() {
             <input
               id="fullName"
               type="text"
-              required
               value={formData.fullName}
               onChange={(e) =>
                 setFormData({ ...formData, fullName: e.target.value })
@@ -98,7 +97,6 @@ export default function SignUp() {
             <input
               id="email"
               type="email"
-              required
               value={formData.email}
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
@@ -117,7 +115,6 @@ export default function SignUp() {
             <input
               id="address"
               type="text"
-              required
               value={formData.address}
               onChange={(e) =>
                 setFormData({ ...formData, address: e.target.value })
@@ -136,7 +133,6 @@ export default function SignUp() {
             <input
               id="phone"
               type="tel"
-              required
               value={formData.phone}
               onChange={(e) =>
                 setFormData({ ...formData, phone: e.target.value })
@@ -155,7 +151,6 @@ export default function SignUp() {
             <input
               id="password"
               type="password"
-              required
               value={formData.password}
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
@@ -174,7 +169,6 @@ export default function SignUp() {
             <input
               id="confirmPassword"
               type="password"
-              required
               value={formData.confirmPassword}
               onChange={(e) =>
                 setFormData({ ...formData, confirmPassword: e.target.value })

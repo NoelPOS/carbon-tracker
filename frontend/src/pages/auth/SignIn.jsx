@@ -20,10 +20,10 @@ export default function SignIn() {
     e.preventDefault();
     setError("");
 
-    if (!validateEmail(formData.email)) {
-      setError("Please enter a valid email address");
-      return;
-    }
+    // if (!validateEmail(formData.email)) {
+    //   setError("Please enter a valid email address");
+    //   return;
+    // }
 
     navigate(ROLE_ROUTES[role]);
 
@@ -73,7 +73,6 @@ export default function SignIn() {
             <input
               id="email"
               type="email"
-              required
               value={formData.email}
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
@@ -92,7 +91,6 @@ export default function SignIn() {
             <input
               id="password"
               type="password"
-              required
               value={formData.password}
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
