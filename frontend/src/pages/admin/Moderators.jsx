@@ -18,15 +18,18 @@ const moderators = [
   },
 ];
 
+const tasks = [
+  { id: "101", name: "How to reduce carbon footprint" },
+  { id: "102", name: "Global Warming" },
+  { id: "103", name: "How to decrease PM 2.5" },
+];
+
 export default function Moderators() {
   const [searchQuery, setSearchQuery] = useState("");
   const [moderatorList, setModeratorList] = useState(moderators);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [selectedModerator, setSelectedModerator] = useState(null);
-  const [assignForm, setAssignForm] = useState({
-    title: "",
-    instruction: "",
-  });
+  const [selectedTask, setSelectedTask] = useState("");
 
   const filteredModerators = moderatorList.filter((moderator) =>
     moderator.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -59,9 +62,9 @@ export default function Moderators() {
 
   const handleSubmitAssignment = (e) => {
     e.preventDefault();
-    console.log("Assigning task to:", selectedModerator?.name, assignForm);
+    console.log("Assigning task to:", selectedModerator?.name, selectedTask);
     setIsAssignModalOpen(false);
-    setAssignForm({ title: "", instruction: "" });
+    setSelectedTask("");
   };
 
   return (
@@ -135,31 +138,21 @@ export default function Moderators() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Article Title
+              Select Task
             </label>
-            <input
-              type="text"
-              value={assignForm.title}
-              onChange={(e) =>
-                setAssignForm({ ...assignForm, title: e.target.value })
-              }
+            <select
+              value={selectedTask}
+              onChange={(e) => setSelectedTask(e.target.value)}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Instruction
-            </label>
-            <textarea
-              value={assignForm.instruction}
-              onChange={(e) =>
-                setAssignForm({ ...assignForm, instruction: e.target.value })
-              }
-              rows={3}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              required
-            />
+            >
+              <option value="">Select a task</option>
+              {tasks.map((task) => (
+                <option key={task.id} value={task.id}>
+                  {task.name}
+                </option>
+              ))}
+            </select>
           </div>
           <button
             type="submit"
