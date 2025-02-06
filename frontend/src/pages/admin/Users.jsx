@@ -1,53 +1,71 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Modal from "../../components/ui/RewardModal";
 
-const users = [
-  {
-    id: "1",
-    name: "Alice Johnson",
-    email: "alice.johnson@example.com",
-    streak: 15,
-    status: "active",
-  },
-  {
-    id: "2",
-    name: "Bob Smith",
-    email: "bob@gmail.com",
-    streak: 10,
-    status: "active",
-  },
-];
+import axios from "axios";
 
-const badges = [
-  {
-    id: "1",
-    name: "Eco Warrior",
-    description: "For reducing carbon footprint significantly",
-  },
-  {
-    id: "2",
-    name: "Green Champion",
-    description: "For maintaining a long streak",
-  },
-  {
-    id: "3",
-    name: "Climate Hero",
-    description: "For outstanding contribution",
-  },
-];
+// const users = [
+//   {
+//     id: "1",
+//     name: "Alice Johnson",
+//     email: "alice.johnson@example.com",
+//     streak: 15,
+//     status: "active",
+//   },
+//   {
+//     id: "2",
+//     name: "Bob Smith",
+//     email: "bob@gmail.com",
+//     streak: 10,
+//     status: "active",
+//   },
+// ];
+
+// const badges = [
+//   {
+//     id: "1",
+//     name: "Eco Warrior",
+//     description: "For reducing carbon footprint significantly",
+//   },
+//   {
+//     id: "2",
+//     name: "Green Champion",
+//     description: "For maintaining a long streak",
+//   },
+//   {
+//     id: "3",
+//     name: "Climate Hero",
+//     description: "For outstanding contribution",
+//   },
+// ];
 
 export default function Users() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [rewardForm, setRewardForm] = useState({
-    badge: "",
-    message: "",
-  });
-  const [userList, setUserList] = useState(users);
+  const [badgeList, setBadgeList] = useState([]);
+  const [userList, setUserList] = useState([]);
+
+  useEffect(() => {
+    try {
+      const fetchUsers = async () => {
+        const res = await axios.get("http://localhost:3000/api/admin/users");
+        setUserList(res.data);
+      };
+
+      const fetchBadges = async () => {
+        const res = await axios.get("http://localhost:3000/api/admin/badges");
+        setBadgeList(res.data);
+      };
+
+      fetchBadges();
+      fetchUsers();
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
 
   const filteredUsers = userList.filter((user) =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase())
+    user.fullname.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleReward = (user) => {
@@ -55,27 +73,63 @@ export default function Users() {
     setIsRewardModalOpen(true);
   };
 
-  const handleSuspend = (id) => {
+  const handleSuspend = async (id) => {
     if (confirm("Are you sure you want to suspend this user?")) {
-      setUserList((prevUsers) =>
-        prevUsers.map((user) =>
-          user.id === id ? { ...user, status: "suspended" } : user
-        )
-      );
+      try {
+        const res = await axios.put(
+          "http://localhost:3000/api/admin/update/user",
+          {
+            user_id: id,
+            status: "suspended",
+          }
+        );
+        if (res.status === 200) {
+          alert("User suspended successfully");
+          window.location.reload();
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this user?")) {
-      setUserList((prevUsers) => prevUsers.filter((user) => user.id !== id));
+      try {
+        const res = await axios.delete(
+          `http://localhost:3000/api/admin/delete/user/${id}`
+        );
+        if (res.status === 200) {
+          alert("User deleted successfully");
+          window.location.reload();
+        } else {
+          console.log(res);
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 
-  const handleSubmitReward = (e) => {
+  const handleSubmitReward = async (e) => {
     e.preventDefault();
-    console.log("Rewarding user:", selectedUser?.name, rewardForm);
-    setIsRewardModalOpen(false);
-    setRewardForm({ badge: "", message: "" });
+    const formData = new FormData(e.target);
+    const badgeId = formData.get("badge");
+    try {
+      const res = await axios.post(
+        `http://localhost:3000/api/admin/assign/badge`,
+        {
+          user_id: selectedUser.user_id,
+          badge_id: badgeId,
+        }
+      );
+      if (res.status === 201) {
+        alert("Badge assigned successfully");
+        setIsRewardModalOpen(false);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -94,7 +148,7 @@ export default function Users() {
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filteredUsers.map((user) => (
-          <div key={user.id} className="rounded-lg bg-white p-6 shadow-sm">
+          <div key={user.user_id} className="rounded-lg bg-white p-6 shadow-sm">
             <div className="flex items-center gap-4">
               <img
                 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRuNhTZJTtkR6b-ADMhmzPvVwaLuLdz273wvQ&s"
@@ -102,9 +156,9 @@ export default function Users() {
                 className="h-16 w-16 rounded-full object-cover"
               />
               <div>
-                <h3 className="font-semibold">Name: {user.name}</h3>
+                <h3 className="font-semibold">Name: {user.fullname}</h3>
                 <p className="text-sm text-gray-600">{user.email}</p>
-                <p className="mt-2">Streak: {user.streak} days</p>
+                <p className="mt-2">Streak: {user.streak_day} days</p>
                 <p className="mt-1 text-sm text-gray-500">
                   Status: {user.status}
                 </p>
@@ -119,13 +173,13 @@ export default function Users() {
                 Reward
               </button>
               <button
-                onClick={() => handleSuspend(user.id)}
+                onClick={() => handleSuspend(user.user_id)}
                 className="rounded-md bg-orange-500 px-4 py-2 text-sm font-medium text-white hover:bg-orange-600"
               >
                 Suspend
               </button>
               <button
-                onClick={() => handleDelete(user.id)}
+                onClick={() => handleDelete(user.user_id)}
                 className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
               >
                 Delete
@@ -147,7 +201,7 @@ export default function Users() {
             </label>
             <input
               type="text"
-              value={selectedUser?.name || ""}
+              value={selectedUser?.fullname || ""}
               disabled
               className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2"
             />
@@ -157,17 +211,15 @@ export default function Users() {
               Select Badge
             </label>
             <select
-              value={rewardForm.badge}
-              onChange={(e) =>
-                setRewardForm({ ...rewardForm, badge: e.target.value })
-              }
+              name="badge"
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               required
             >
               <option value="">Select a badge</option>
-              {badges.map((badge) => (
-                <option key={badge.id} value={badge.id}>
-                  {badge.name} - {badge.description}
+
+              {badgeList.map((badge) => (
+                <option key={badge.badge_id} value={badge.badge_id}>
+                  {badge.badge_desc}
                 </option>
               ))}
             </select>

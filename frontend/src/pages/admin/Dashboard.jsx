@@ -6,10 +6,16 @@ import axios from "axios";
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [badges, setBadges] = useState([]);
+  const [moderators, setModerators] = useState([]);
+  const [users, setUsers] = useState([]);
   const [adminInfo, setAdminInfo] = useState({
     admin_id: 0,
     email: "",
     password: "",
+  });
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalModerators: 0,
   });
 
   useEffect(() => {
@@ -19,10 +25,52 @@ const Dashboard = () => {
     }
   }, []);
 
-  const stats = {
-    totalUsers: 125,
-    totalModerators: 125,
-  };
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/api/admin/tasks");
+        setTasks(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    const fetchBadges = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/api/admin/badges");
+        setBadges(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    const fetchModerators = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:3000/api/admin/moderators"
+        );
+        setModerators(res.data);
+        setStats((prev) => ({ ...prev, totalModerators: res.data.length }));
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/api/admin/users");
+        setUsers(res.data);
+        setStats((prev) => ({ ...prev, totalUsers: res.data.length }));
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchTasks();
+    fetchBadges();
+    fetchModerators();
+    fetchUsers();
+  }, []);
 
   const handleCreateTask = async (e) => {
     e.preventDefault();
@@ -48,6 +96,23 @@ const Dashboard = () => {
     }
   };
 
+  const uploadImageToCloudinary = async (imageFile) => {
+    const formData = new FormData();
+    formData.append("file", imageFile);
+    formData.append("upload_preset", "carbon_tracker");
+    try {
+      const res = await axios.post(
+        `https://api.cloudinary.com/v1_1/dlprlndi6/image/upload`,
+        formData
+      );
+      console.log(res.data.secure_url);
+      return res.data.secure_url;
+    } catch (err) {
+      console.log("Image upload error:", err);
+      return null;
+    }
+  };
+
   const handleCreateBadge = async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
@@ -55,7 +120,9 @@ const Dashboard = () => {
     const name = formData.get("name");
     const description = formData.get("description");
     const image = formData.get("image");
-    console.log(name, description, image);
+    form.reset();
+
+    const imageUrl = await uploadImageToCloudinary(image);
     try {
       const res = await axios.post(
         "http://localhost:3000/api/admin/create/badge",
@@ -63,7 +130,7 @@ const Dashboard = () => {
           admin_id: adminInfo.admin_id,
           name,
           description,
-          image,
+          image: imageUrl,
         }
       );
       console.log(res.data);
@@ -99,24 +166,50 @@ const Dashboard = () => {
     }
   };
 
-  const handleAssignTask = (e) => {
+  const handleAssignTask = async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
     const moderator = formData.get("moderator");
     const task = formData.get("task");
-    form.reset();
-    alert("Task assigned successfully");
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/api/admin/assign/task",
+        {
+          moderator_id: moderator,
+          task_id: task,
+        }
+      );
+      // refresh page
+
+      window.location.reload();
+      form.reset();
+      alert(`${res.data.message}`);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  const handleAssignBadge = (e) => {
+  const handleAssignBadge = async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
     const user = formData.get("user");
     const badge = formData.get("badge");
-    form.reset();
-    alert("Badge assigned successfully");
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/api/admin/assign/badge",
+        {
+          user_id: user,
+          badge_id: badge,
+        }
+      );
+      form.reset();
+      // print res message
+      alert(`${res.data.message}`);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -232,7 +325,7 @@ const Dashboard = () => {
                 <h3 className="mb-4 text-lg font-semibold text-gray-900">
                   Create New Badge
                 </h3>
-                <form onSubmit={handleCreateBadge} className="space-y-4">
+                <form onSubmit={handleCreateBadge} className="space-y-8">
                   <input
                     type="text"
                     name="name"
@@ -240,13 +333,13 @@ const Dashboard = () => {
                     className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     required
                   />
-                  <textarea
+                  {/* <textarea
                     name="description"
                     placeholder="Badge Description"
                     rows={3}
                     className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     required
-                  />
+                  /> */}
                   <input
                     type="file"
                     accept="image/*"
@@ -271,16 +364,25 @@ const Dashboard = () => {
               Assign Task to Moderator
             </h3>
             <form onSubmit={handleAssignTask} className="space-y-4">
-              <select className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+              <select
+                name="moderator"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
                 <option value="">Select a moderator</option>
-                <option value="mod1">Moderator 1</option>
-                <option value="mod2">Moderator 2</option>
+                {moderators.map((moderator, index) => (
+                  <option key={index} value={`${moderator.moderator_id}`}>
+                    {moderator.name}
+                  </option>
+                ))}
               </select>
-              <select className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+              <select
+                name="task"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
                 <option value="">Select a task</option>
                 {tasks.map((task, index) => (
-                  <option key={index} value={`task${index}`}>
-                    {task.title}
+                  <option key={index} value={`${task.task_id}`}>
+                    {task.task_title}
                   </option>
                 ))}
               </select>
@@ -299,16 +401,25 @@ const Dashboard = () => {
               Provide Badge to User
             </h3>
             <form onSubmit={handleAssignBadge} className="space-y-4">
-              <select className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+              <select
+                name="user"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
                 <option value="">Select a user</option>
-                <option value="user1">User 1</option>
-                <option value="user2">User 2</option>
+                {users.map((user, index) => (
+                  <option key={index} value={`${user.user_id}`}>
+                    {user.fullname}
+                  </option>
+                ))}
               </select>
-              <select className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+              <select
+                name="badge"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
                 <option value="">Select a badge</option>
                 {badges.map((badge, index) => (
-                  <option key={index} value={`badge${index}`}>
-                    {badge.name}
+                  <option key={index} value={`${badge.badge_id}`}>
+                    {badge.badge_desc}
                   </option>
                 ))}
               </select>
@@ -349,15 +460,20 @@ const Dashboard = () => {
                 Created Badges
               </h3>
               {badges.length > 0 ? (
-                <ul className="divide-y divide-gray-200">
+                <ul className="flex flex-wrap gap-4">
                   {badges.map((badge, index) => (
-                    <li key={index} className="py-4">
+                    <li
+                      key={index}
+                      className="p-4 bg-gray-400 rounded-lg flex flex-col items-center justify-center"
+                    >
                       <h4 className="text-lg font-medium text-gray-900">
-                        {badge.name}
+                        {badge.badge_desc}
                       </h4>
-                      <p className="mt-1 text-sm text-gray-600">
-                        {badge.description}
-                      </p>
+                      <img
+                        src={badge.badge_url}
+                        alt={badge.badge_desc}
+                        className="mt-2 w-20 h-20 object-cover rounded-lg"
+                      />
                     </li>
                   ))}
                 </ul>
