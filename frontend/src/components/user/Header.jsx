@@ -1,12 +1,19 @@
 import { Link, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isActive = (path) => {
     return location.pathname === path
       ? "bg-gray-100 text-gray-900"
       : "text-gray-600 hover:bg-gray-50";
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/auth/signin");
   };
 
   return (
@@ -59,8 +66,11 @@ export default function Header() {
             >
               Profile
             </Link>
-            <button className="rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">
-              <Link to="/">Log Out</Link>
+            <button
+              className="rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              onClick={handleLogout}
+            >
+              <Link>Log Out</Link>
             </button>
           </nav>
         </div>

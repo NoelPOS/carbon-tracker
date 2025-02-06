@@ -5,6 +5,7 @@ const cors = require('cors')
 const { client } = require('./db/dbconnect.js')
 
 const { UserRoute } = require('./routes/user.route.js')
+const { AdminRoute } = require('./routes/admin.route.js')
 
 const app = express()
 
@@ -18,6 +19,7 @@ app.use(
 )
 
 app.use('/api/users', UserRoute)
+app.use('/api/admin', AdminRoute)
 
 app.get('/', (req, res) => {
   res.send('hello world')

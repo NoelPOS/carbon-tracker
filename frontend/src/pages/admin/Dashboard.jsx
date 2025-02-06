@@ -1,39 +1,80 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [badges, setBadges] = useState([]);
+  const [adminInfo, setAdminInfo] = useState({
+    admin_id: 0,
+    email: "",
+    password: "",
+  });
+
+  useEffect(() => {
+    const admin = JSON.parse(localStorage.getItem("admin"));
+    if (admin) {
+      setAdminInfo(admin);
+    }
+  }, []);
 
   const stats = {
     totalUsers: 125,
     totalModerators: 125,
   };
 
-  const handleCreateTask = (e) => {
+  const handleCreateTask = async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
     const title = formData.get("title");
     const instruction = formData.get("instruction");
-    setTasks([...tasks, { title, instruction }]);
     form.reset();
-    alert("Task created successfully");
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/api/admin/create/task",
+        {
+          admin_id: adminInfo.admin_id,
+          title,
+          instruction,
+        }
+      );
+      console.log(res.data);
+      setTasks([...tasks, res.data]);
+      alert("Task created successfully");
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  const handleCreateBadge = (e) => {
+  const handleCreateBadge = async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
     const name = formData.get("name");
     const description = formData.get("description");
-    setBadges([...badges, { name, description }]);
-    form.reset();
-    alert("Badge created successfully");
+    const image = formData.get("image");
+    console.log(name, description, image);
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/api/admin/create/badge",
+        {
+          admin_id: adminInfo.admin_id,
+          name,
+          description,
+          image,
+        }
+      );
+      console.log(res.data);
+      setBadges([...badges, res.data]);
+      alert("Badge created successfully");
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  const handleCreateModerator = (e) => {
+  const handleCreateModerator = async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -41,7 +82,21 @@ const Dashboard = () => {
     const email = formData.get("email");
     const password = formData.get("password");
     form.reset();
-    alert("Moderator created successfully");
+
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/api/admin/create/moderator",
+        {
+          name,
+          email,
+          password,
+        }
+      );
+      // console.log(res.data);
+      alert("Moderator created successfully");
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const handleAssignTask = (e) => {
@@ -119,16 +174,19 @@ const Dashboard = () => {
                   <input
                     type="text"
                     placeholder="Name"
+                    name="name"
                     className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                   <input
                     type="email"
                     placeholder="Email"
+                    name="email"
                     className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                   <input
                     type="password"
                     placeholder="Password"
+                    name="password"
                     className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                   <button
@@ -192,6 +250,7 @@ const Dashboard = () => {
                   <input
                     type="file"
                     accept="image/*"
+                    name="image"
                     className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     required
                   />
@@ -273,10 +332,10 @@ const Dashboard = () => {
                   {tasks.map((task, index) => (
                     <li key={index} className="py-4">
                       <h4 className="text-lg font-medium text-gray-900">
-                        {task.title}
+                        {task.task_title}
                       </h4>
                       <p className="mt-1 text-sm text-gray-600">
-                        {task.instruction}
+                        {task.task_desc}
                       </p>
                     </li>
                   ))}

@@ -1,13 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function Profile() {
   const [profileData, setProfileData] = useState({
-    name: "Alex Johnson",
-    email: "alex.johnson@example.com",
-    phone: "+123 456 789",
-    location: "Samut Prakan, Thailand",
-    accountCreated: "January 15, 2024",
+    userid: "",
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    address: "",
+    accountCreated: "",
   });
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    console.log("User:", user);
+
+    if (user) {
+      setProfileData({
+        userid: user.user_id,
+        name: user.fullname,
+        email: user.email,
+        password: user.password,
+        phone: user.phone_number,
+        address: user.address,
+      });
+    }
+  }, []);
 
   const badges = [
     {
@@ -27,9 +45,21 @@ export default function Profile() {
     },
   ];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Profile updated:", profileData);
+    try {
+      const res = await axios.put(
+        `http://localhost:3000/api/users/update/${profileData.userid}`,
+        profileData
+      );
+      console.log(res.data);
+
+      localStorage.setItem("user");
+
+      alert("Profile updated successfully");
+    } catch {
+      console.log("Error updating profile");
+    }
   };
 
   return (
@@ -80,6 +110,23 @@ export default function Profile() {
                   className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Password
+                </label>
+                <input
+                  type="text"
+                  id="password"
+                  value={profileData.password}
+                  onChange={(e) =>
+                    setProfileData({ ...profileData, password: e.target.value })
+                  }
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -116,17 +163,12 @@ export default function Profile() {
               <input
                 type="text"
                 id="location"
-                value={profileData.location}
+                value={profileData.address}
                 onChange={(e) =>
-                  setProfileData({ ...profileData, location: e.target.value })
+                  setProfileData({ ...profileData, address: e.target.value })
                 }
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
-            </div>
-
-            <div className="flex justify-between">
-              <span className="text-gray-600">Account Created:</span>
-              <span>{profileData.accountCreated}</span>
             </div>
           </div>
         </div>

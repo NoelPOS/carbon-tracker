@@ -116,22 +116,7 @@
 // );
 
 
-
-const getAllUsers = 'SELECT * FROM users'
-
-const userSignUpQuery = 'INSERT INTO users (fullname, email, password, address, phone_number) VALUES ($1, $2, $3, $4, $5) RETURNING *'
+const adminSignInQuery = `SELECT * FROM Admin WHERE email = $1 AND password = $2`;
 
 
-const userSignInQuery = 'SELECT * FROM users WHERE email = $1 AND password = $2'
-
-
-const userUpdateQuery = 'UPDATE users SET fullname = $1, email = $2, password = $3, address = $4, phone_number = $5 WHERE user_id = $6 RETURNING *'
-
-
-
-module.exports = {
-  getAllUsers,
-  userSignInQuery,
-  userSignUpQuery,
-  userUpdateQuery
-}
+module.exports = { adminSignInQuery }

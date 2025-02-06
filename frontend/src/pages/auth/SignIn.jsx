@@ -9,7 +9,7 @@ import axios from "axios";
 
 export default function SignIn() {
   const navigate = useNavigate();
-  const [role, setRole] = useState("user");
+  const [role, setRole] = useState("users");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -25,22 +25,21 @@ export default function SignIn() {
     //   return;
     // }
 
-    navigate(ROLE_ROUTES[role]);
-
-    // try {
-    //   // Api call
-    //   const res = await axios.post(`http://localhost:5000/api/${role}/signin`, {
-    //     email: formData.email,
-    //     password: formData.password,
-    //   })
-    //   if (res.status === 200) {
-    //     navigate(ROLE_ROUTES[role])
-    //   } else {
-    //     alert('Invalid email or password')
-    //   }
-    // } catch (err) {
-    //   setError('Invalid email or password')
-    // }
+    try {
+      // Api call
+      const res = await axios.post(`http://localhost:3000/api/${role}/signin`, {
+        email: formData.email,
+        password: formData.password,
+      });
+      if (res.status === 200) {
+        localStorage.setItem(`${role}`, JSON.stringify(res.data));
+        navigate(`${ROLE_ROUTES[role]}`);
+      } else {
+        alert("Invalid email or password");
+      }
+    } catch (err) {
+      setError("Invalid email or password");
+    }
   };
 
   return (
