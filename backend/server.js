@@ -6,6 +6,7 @@ const { client } = require('./db/dbconnect.js')
 
 const { UserRoute } = require('./routes/user.route.js')
 const { AdminRoute } = require('./routes/admin.route.js')
+const { ModeratorRoute } = require('./routes/moderator.route.js')
 
 const app = express()
 
@@ -20,6 +21,7 @@ app.use(
 
 app.use('/api/users', UserRoute)
 app.use('/api/admin', AdminRoute)
+app.use('/api/moderator', ModeratorRoute)
 
 app.get('/', (req, res) => {
   res.send('hello world')
