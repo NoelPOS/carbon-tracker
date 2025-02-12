@@ -10,6 +10,7 @@ const {
   commentArticle,
   getComments,
   replyComment,
+  getReplies,
 } = require('../controllers/user.controller.js')
 
 UserRoute.post('/signin', userSignIn)
@@ -21,5 +22,6 @@ UserRoute.get('/articles/:id', getArticle)
 UserRoute.post('/articles/:id/comment', commentArticle)
 UserRoute.get('/articles/:id/comment', getComments)
 UserRoute.post('/articles/:id/comment/:commentId/reply', replyComment)
+UserRoute.get('/articles/:id/comment/:commentId/reply', getReplies)
 
 module.exports = { UserRoute }

@@ -147,6 +147,20 @@ const replyComment = async (req, res) => {
   }
 }
 
+const getReplies = async (req, res) => {
+  try {
+    const { commentId } = req.params
+    const { rows: replies } = await client.query(
+      `SELECT * FROM reply WHERE comment_id = $1`,
+      [commentId]
+    )
+    res.status(200).json(replies)
+  } catch (err) {
+    console.error('Error fetching replies:', err)
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
+
 module.exports = {
   userSignIn,
   userSignUp,
@@ -156,4 +170,5 @@ module.exports = {
   commentArticle,
   getComments,
   replyComment,
+  getReplies,
 }

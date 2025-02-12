@@ -73,7 +73,7 @@ export default function App() {
                         element={<CreateArticle />}
                       />
                       <Route
-                        path="/articles/:id/edit"
+                        path="/articles/:article_id/edit"
                         element={<EditArticle />}
                       />
                       <Route path="/profile" element={<ModeratorProfile />} />

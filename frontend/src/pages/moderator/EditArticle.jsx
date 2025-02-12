@@ -1,48 +1,101 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-
+import axios from "axios";
 export default function EditArticle() {
-  const { id } = useParams();
+  const { article_id } = useParams();
   const navigate = useNavigate();
   const [article, setArticle] = useState(null);
 
   useEffect(() => {
+    console.log(article_id);
+    const moderator_id = JSON.parse(
+      localStorage.getItem("moderator")
+    ).moderator_id;
     // Fetch article data
-    setArticle({
-      id: "1",
-      title: "How Renewable Energy is Changing the World",
-      subtitle: "Discover the latest trends in renewable energy",
-      description: "Content...",
-      image:
-        "https://5.imimg.com/data5/SELLER/Default/2023/3/JE/QQ/EB/28817984/poly-crystalline-solar-power-panel-500x500.jpg",
-      status: "published",
-      comments: [
-        {
-          id: "1",
-          author: "John Doe",
-          content: "Great article! I really enjoyed reading this.",
-          timestamp: "about 2 hours ago",
-        },
-      ],
-    });
-  }, [id]);
+    const fetchArticle = async () => {
+      const res = await axios.get(
+        `http://localhost:3000/api/moderator/article/${article_id}`
+      );
+      // console.log(res.data);
 
-  const handleRemoveComment = (commentId) => {
-    setArticle({
-      ...article,
-      comments: article.comments.filter((comment) => comment.id !== commentId),
-    });
+      setArticle(res.data);
+    };
+    fetchArticle();
+  }, []);
+
+  const handleRemoveComment = async (commentId) => {
+    const res = await axios.delete(
+      `http://localhost:3000/api/moderator/comment/${commentId}`
+    );
+    console.log(res.data);
+    alert("Comment deleted successfully");
+    window.location.reload();
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setArticle({ ...article, image: imageUrl });
+  const uploadImageToCloudinary = async (imageFile) => {
+    const formData = new FormData();
+    formData.append("file", imageFile);
+    formData.append("upload_preset", "carbon_tracker");
+    try {
+      const res = await axios.post(
+        `https://api.cloudinary.com/v1_1/dlprlndi6/image/upload`,
+        formData
+      );
+      console.log(res.data.secure_url);
+      return res.data.secure_url;
+    } catch (err) {
+      console.log("Image upload error:", err);
+      return null;
     }
   };
 
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    const imageUrl = await uploadImageToCloudinary(file);
+    if (imageUrl) {
+      setArticle({ ...article, img_url: imageUrl });
+    }
+  };
+
+  const handleUpdateArticle = async () => {
+    const moderator_id = JSON.parse(
+      localStorage.getItem("moderator")
+    ).moderator_id;
+    console.log(article);
+    const res = await axios.put(
+      `http://localhost:3000/api/moderator/article/${article_id}`,
+      { ...article, moderator_id }
+    );
+    console.log(res.data);
+    navigate("/moderator/articles");
+  };
+
+  const handleDeleteArticle = async () => {
+    const res = await axios.delete(
+      `http://localhost:3000/api/moderator/article/${article_id}`
+    );
+    console.log(res.data);
+    navigate("/moderator/articles");
+  };
+
   if (!article) return null;
+  // example of article
+  // {
+  //   article_id: 1,
+  //   title: "Article Title",
+  //   subtitle: "Subtitle",
+  //   description: "Description",
+  //   img_url: "url",
+  //   moderator_id: 1,
+  //   comments: [
+  //     {
+  //       comment_id: 1,
+  //       content: "Comment content",
+  //       user_id: 1
+  //     },
+  //     // ... more comments if they exist
+  //   ]
+  // }
 
   return (
     <div className="mx-auto max-w-2xl space-y-8 p-4">
@@ -50,7 +103,7 @@ export default function EditArticle() {
         <h1 className="text-2xl font-bold">Update Article</h1>
         <div className="flex gap-2">
           <button
-            onClick={() => navigate("/moderator/articles")}
+            onClick={handleUpdateArticle}
             className="rounded-md bg-green-500 px-4 py-2 text-white hover:bg-green-600"
           >
             Update
@@ -111,7 +164,7 @@ export default function EditArticle() {
           </label>
           <div className="mt-1">
             <img
-              src={article.image}
+              src={article.img_url}
               alt=""
               className="h-48 w-full rounded-lg object-cover"
             />
@@ -132,7 +185,10 @@ export default function EditArticle() {
         </h2>
         <div className="space-y-4">
           {article.comments.map((comment) => (
-            <div key={comment.id} className="flex items-start justify-between">
+            <div
+              key={comment.comment_id}
+              className="flex items-start justify-between"
+            >
               <div className="flex gap-3">
                 <div className="h-10 w-10 rounded-full bg-gray-200" />
                 <div>
@@ -146,7 +202,7 @@ export default function EditArticle() {
                 </div>
               </div>
               <button
-                onClick={() => handleRemoveComment(comment.id)}
+                onClick={() => handleRemoveComment(comment.comment_id)}
                 className="rounded-md bg-red-100 px-3 py-1 text-sm text-red-600 hover:bg-red-200"
               >
                 Delete

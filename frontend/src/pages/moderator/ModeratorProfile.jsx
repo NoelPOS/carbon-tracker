@@ -9,24 +9,6 @@ export default function ModeratorProfile() {
     accountCreated: "January 15, 2024",
   });
 
-  const badges = [
-    {
-      title: "Eco Warrior",
-      description: "For reducing 10kg CO2 this week",
-      icon: "🌱",
-    },
-    {
-      title: "Carbon Saver",
-      description: "For saving 20kg CO2 this month",
-      icon: "🌍",
-    },
-    {
-      title: "Green Innovator",
-      description: "For innovative eco-friendly solutions",
-      icon: "🌿",
-    },
-  ];
-
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle profile update
