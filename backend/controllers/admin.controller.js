@@ -199,6 +199,95 @@ const updateArticle = async (req, res) => {
   }
 }
 
+const getQuestions = async (req, res) => {
+  try {
+    const { rows } = await client.query('SELECT * FROM Question')
+    res.status(200).json(rows)
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
+
+const createQuestion = async (req, res) => {
+  try {
+    const { question, admin_id } = req.body
+    const newQuestion = await client.query(
+      'INSERT INTO Question (question_title, admin_id) VALUES ($1, $2) RETURNING *',
+      [question, admin_id]
+    )
+    res.status(201).json(newQuestion.rows[0])
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
+
+const deleteQuestion = async (req, res) => {
+  try {
+    const { question_id } = req.params
+    const question = await client.query(
+      'DELETE FROM Question WHERE question_id = $1 RETURNING *',
+      [question_id]
+    )
+    res.status(200).json(question.rows[0])
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
+
+const createOption = async (req, res) => {
+  try {
+    const { question_id, option_name, carbon_value } = req.body
+    const newOption = await client.query(
+      'INSERT INTO Option (question_id, option_name, carbon_value) VALUES ($1, $2, $3) RETURNING *',
+      [question_id, option_name, carbon_value]
+    )
+    res.status(201).json(newOption.rows[0])
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
+
+const getOptions = async (req, res) => {
+  try {
+    const { question_id } = req.params
+    const options = await client.query(
+      'SELECT * FROM Option WHERE question_id = $1',
+      [question_id]
+    )
+    res.status(200).json(options.rows)
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
+
+const updateQuestion = async (req, res) => {
+  try {
+    const { question_id } = req.params
+    const { question } = req.body
+    const updatedQuestion = await client.query(
+      'UPDATE Question SET question_title = $1 WHERE question_id = $2 RETURNING *',
+      [question, question_id]
+    )
+    res.status(200).json(updatedQuestion.rows[0])
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
+
+const updateOption = async (req, res) => {
+  try {
+    const { option_id } = req.params
+    const { option_name, carbon_value } = req.body
+    const updatedOption = await client.query(
+      'UPDATE Option SET option_name = $1, carbon_value = $2 WHERE option_id = $3 RETURNING *',
+      [option_name, carbon_value, option_id]
+    )
+    res.status(200).json(updatedOption.rows[0])
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
+
 module.exports = {
   adminSignin,
   createTask,
@@ -214,4 +303,11 @@ module.exports = {
   deleteUser,
   getArticles,
   updateArticle,
+  getQuestions,
+  createQuestion,
+  createOption,
+  getOptions,
+  deleteQuestion,
+  updateQuestion,
+  updateOption,
 }
