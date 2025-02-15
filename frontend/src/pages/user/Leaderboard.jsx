@@ -1,29 +1,63 @@
-import { useState } from 'react'
-
-const users = [
-  { name: 'Alex Green', avgCarbon: '12.5 kg', streak: '15 days' },
-  { name: 'Jamie Blue', avgCarbon: '13.2 kg', streak: '12 days' },
-  { name: 'Sam Brown', avgCarbon: '14.1 kg', streak: '7 days' },
-  { name: 'Alex White', avgCarbon: '12.2 kg', streak: '5 days' },
-  { name: 'Jamie Yellow', avgCarbon: '13.8 kg', streak: '4 days' },
-  { name: 'Sam Gold', avgCarbon: '14.4 kg', streak: '1 days' },
-]
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 
 export default function Leaderboard() {
+  const [users, setUsers] = useState([])
   const [sortKey, setSortKey] = useState('name')
 
-  const sortedUsers = [...users].sort((a, b) => {
-    switch (sortKey) {
-      case 'name':
-        return a.name.localeCompare(b.name)
-      case 'avgCarbon':
-        return parseFloat(a.avgCarbon) - parseFloat(b.avgCarbon)
-      case 'streak':
-        return parseInt(a.streak) - parseInt(b.streak)
-      default:
-        return 0
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:3000/api/users/leaderboard/name`
+        )
+        console.log('Users:', res.data)
+        setUsers(res.data)
+      } catch (err) {
+        console.error('Error fetching users:', err)
+      }
     }
-  })
+    fetchUsers()
+  }, [])
+
+  const sortName = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:3000/api/users/leaderboard/name`
+      )
+      console.log('Users:', res.data)
+      setUsers(res.data)
+      setSortKey('name')
+    } catch (err) {
+      console.error('Error fetching users:', err)
+    }
+  }
+
+  const sortAvgCarbon = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:3000/api/users/leaderboard/avgcarbon`
+      )
+      console.log('Users:', res.data)
+      setUsers(res.data)
+      setSortKey('avgCarbon')
+    } catch (err) {
+      console.error('Error fetching users:', err)
+    }
+  }
+
+  const sortStreak = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:3000/api/users/leaderboard/streak`
+      )
+      console.log('Users:', res.data)
+      setUsers(res.data)
+      setSortKey('streak')
+    } catch (err) {
+      console.error('Error fetching users:', err)
+    }
+  }
 
   return (
     <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
@@ -31,7 +65,7 @@ export default function Leaderboard() {
 
       <div className='mb-4 flex space-x-4'>
         <button
-          onClick={() => setSortKey('name')}
+          onClick={sortName}
           className={`rounded-md px-4 py-2 text-sm ${
             sortKey === 'name' ? 'bg-gray-200' : 'bg-gray-100'
           }`}
@@ -39,7 +73,7 @@ export default function Leaderboard() {
           Sort by Name
         </button>
         <button
-          onClick={() => setSortKey('avgCarbon')}
+          onClick={sortAvgCarbon}
           className={`rounded-md px-4 py-2 text-sm ${
             sortKey === 'avgCarbon' ? 'bg-gray-200' : 'bg-gray-100'
           }`}
@@ -47,7 +81,7 @@ export default function Leaderboard() {
           Sort by Avg Carbon Footprint
         </button>
         <button
-          onClick={() => setSortKey('streak')}
+          onClick={sortStreak}
           className={`rounded-md px-4 py-2 text-sm ${
             sortKey === 'streak' ? 'bg-gray-200' : 'bg-gray-100'
           }`}
@@ -72,16 +106,16 @@ export default function Leaderboard() {
             </tr>
           </thead>
           <tbody className='divide-y divide-gray-200 bg-white'>
-            {sortedUsers.map((user, index) => (
-              <tr key={user.name}>
+            {users.map((user, index) => (
+              <tr key={user.fullname}>
                 <td className='whitespace-nowrap px-6 py-4'>
                   <div className='flex items-center'>
-                    <span className='mr-2 text-gray-500'>{index + 1}.</span>
+                    <span className='mr-2 text-gray-500'>{user.fullname}</span>
                     <span className='font-medium'>{user.name}</span>
                   </div>
                 </td>
                 <td className='whitespace-nowrap px-6 py-4 text-gray-500'>
-                  {user.avgCarbon}
+                  {user.avg.slice(0, 6)}
                 </td>
                 <td className='whitespace-nowrap px-6 py-4 text-gray-500'>
                   {user.streak}

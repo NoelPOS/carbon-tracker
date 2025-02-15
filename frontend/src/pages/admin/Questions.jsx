@@ -1,17 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-
-// const initialQuestions = [
-//   {
-//     id: "1",
-//     question: "What did you eat for breakfast today?",
-//     options: [
-//       { text: "Dairy", carbonAmount: 0.25 },
-//       { text: "Meat", carbonAmount: 0.5 },
-//       { text: "Vegetable", carbonAmount: 0.25 },
-//     ],
-//   },
-// ];
+import { useNavigate } from 'react-router-dom'
 
 // Table Schema for question and option
 
@@ -36,6 +25,7 @@ export default function Questions() {
     options: [{ text: '', carbonAmount: 0 }],
   })
   const [editingIndex, setEditingIndex] = useState(null)
+  const navigate = useNavigate()
 
   const fetchQuestionsAndOptions = async () => {
     const res = await axios.get(`http://localhost:3000/api/admin/questions`)
@@ -55,7 +45,12 @@ export default function Questions() {
   }
 
   useEffect(() => {
-    fetchQuestionsAndOptions()
+    const admin = localStorage.getItem('admin')
+    if (!admin) {
+      navigate('/auth/signin')
+    } else {
+      fetchQuestionsAndOptions()
+    }
   }, [])
 
   const addOption = () => {
@@ -75,7 +70,7 @@ export default function Questions() {
       const res = await axios.post(
         `http://localhost:3000/api/admin/questions/create`,
         {
-          question: newQuestion.question,
+          question: newQuestion.question_title,
           admin_id,
         }
       )
@@ -84,12 +79,14 @@ export default function Questions() {
       newQuestion.options.forEach(async (option) => {
         await axios.post(`http://localhost:3000/api/admin/options/create`, {
           question_id,
-          option_name: option.text,
-          carbon_value: option.carbonAmount,
+          option_name: option.option_name,
+          carbon_value: option.carbon_value,
         })
       })
-      fetchQuestionsAndOptions()
+      window.location.reload()
     } else {
+      console.log('editing')
+      console.log('newQuestion', newQuestion)
       // update question
       await axios.put(
         `http://localhost:3000/api/admin/questions/update/${questions[editingIndex].question_id}`,
@@ -103,8 +100,8 @@ export default function Questions() {
           await axios.put(
             `http://localhost:3000/api/admin/options/update/${questions[editingIndex].options[index].option_id}`,
             {
-              option_name: option.text,
-              carbon_value: option.carbonAmount,
+              option_name: option.option_name,
+              carbon_value: option.carbon_value,
             }
           )
         } else {
@@ -120,6 +117,7 @@ export default function Questions() {
         options: [{ question_title: '', carbon_value: 0 }],
       })
       setEditingIndex(null)
+      window.location.reload()
     }
     setNewQuestion({
       question_title: '',

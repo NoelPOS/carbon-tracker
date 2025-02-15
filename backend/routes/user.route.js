@@ -11,6 +11,14 @@ const {
   getComments,
   replyComment,
   getReplies,
+  getQuestions,
+  saveRecord,
+  getRecords,
+  userStreakUpdate,
+  getLeaderboardByName,
+  getLeaderboardByAvgCarbon,
+  getLeaderboardByStreak,
+  getBadge,
 } = require('../controllers/user.controller.js')
 
 UserRoute.post('/signin', userSignIn)
@@ -23,5 +31,16 @@ UserRoute.post('/articles/:id/comment', commentArticle)
 UserRoute.get('/articles/:id/comment', getComments)
 UserRoute.post('/articles/:id/comment/:commentId/reply', replyComment)
 UserRoute.get('/articles/:id/comment/:commentId/reply', getReplies)
+
+UserRoute.get('/questions', getQuestions)
+UserRoute.post('/save-record', saveRecord)
+UserRoute.get('/records/:user_id', getRecords)
+UserRoute.put('/streakupdate/:id', userStreakUpdate)
+
+UserRoute.get('/leaderboard/name', getLeaderboardByName)
+UserRoute.get('/leaderboard/avgcarbon', getLeaderboardByAvgCarbon)
+UserRoute.get('/leaderboard/streak', getLeaderboardByStreak)
+
+UserRoute.get('/badge/:user_id', getBadge)
 
 module.exports = { UserRoute }
