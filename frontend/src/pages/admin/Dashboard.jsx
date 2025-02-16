@@ -180,9 +180,6 @@ const Dashboard = () => {
           task_id: task,
         }
       );
-      // refresh page
-
-      window.location.reload();
       form.reset();
       alert(`${res.data.message}`);
     } catch (err) {
@@ -333,13 +330,6 @@ const Dashboard = () => {
                     className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     required
                   />
-                  {/* <textarea
-                    name="description"
-                    placeholder="Badge Description"
-                    rows={3}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    required
-                  /> */}
                   <input
                     type="file"
                     accept="image/*"
@@ -435,24 +425,52 @@ const Dashboard = () => {
           {/* Display Created Tasks and Badges */}
           <div className="grid gap-8 md:grid-cols-2">
             <div className="rounded-lg bg-white p-6 shadow">
-              <h3 className="mb-4 text-xl font-semibold text-gray-900">
+              <h3 className="mb-6 text-xl font-semibold text-gray-900">
                 Created Tasks
               </h3>
-              {tasks.length > 0 ? (
-                <ul className="divide-y divide-gray-200">
-                  {tasks.map((task, index) => (
-                    <li key={index} className="py-4">
-                      <h4 className="text-lg font-medium text-gray-900">
-                        {task.task_title}
-                      </h4>
-                      <p className="mt-1 text-sm text-gray-600">
-                        {task.task_desc}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
+              {tasks.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="text-gray-400 text-5xl mb-4">📋</div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    No Tasks Created Yet
+                  </h3>
+                  <p className="text-gray-500">
+                    Create your first task using the form above!
+                  </p>
+                </div>
               ) : (
-                <p className="text-gray-500">No tasks created yet.</p>
+                <div className="space-y-4">
+                  {tasks.map((task) => (
+                    <div
+                      key={task.task_id}
+                      className="rounded-lg border border-gray-200 bg-white p-4 hover:shadow-md transition-shadow duration-200"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className="text-lg font-medium text-gray-900 mb-2">
+                            {task.task_title}
+                          </h4>
+                          <p className="text-sm text-gray-600 whitespace-pre-wrap">
+                            {task.task_desc}
+                          </p>
+                          <div className="mt-3 flex items-center gap-2">
+                            <span
+                              className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                task.task_status === "pending"
+                                  ? "bg-yellow-100 text-yellow-700"
+                                  : task.task_status === "completed"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-gray-100 text-gray-700"
+                              }`}
+                            >
+                              {task.task_status?.toUpperCase()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
             <div className="rounded-lg bg-white p-6 shadow">

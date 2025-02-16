@@ -72,10 +72,7 @@ const getModerators = async (req, res) => {
 
 const getTasks = async (req, res) => {
   try {
-    const tasks = await client.query(
-      'SELECT * FROM Task WHERE task_status = $1',
-      ['unassigned']
-    )
+    const tasks = await client.query('SELECT * FROM Task')
     res.status(200).json(tasks.rows)
   } catch (err) {
     res.status(500).json({ message: err.message })

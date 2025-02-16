@@ -125,9 +125,15 @@ const userSignUpQuery = 'INSERT INTO users (fullname, email, password, address, 
 const userSignInQuery = 'SELECT * FROM users WHERE email = $1 AND password = $2'
 
 
-const userUpdateQuery = 'UPDATE users SET fullname = $1, email = $2, password = $3, address = $4, phone_number = $5 WHERE user_id = $6 RETURNING *'
-
-
+const userUpdateQuery = `
+  UPDATE users 
+  SET fullname = $1, 
+      email = $2, 
+      password = $3, 
+      phone_number = $4, 
+      address = $5 
+      WHERE user_id = $6 
+      RETURNING *`
 
 module.exports = {
   getAllUsers,

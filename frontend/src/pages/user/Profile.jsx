@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 // -- Badge Table
 // CREATE TABLE Badge (
@@ -31,125 +31,125 @@ import axios from 'axios'
 
 export default function Profile() {
   const [profileData, setProfileData] = useState({
-    userid: '',
-    name: '',
-    email: '',
-    password: '',
-    phone: '',
-    address: '',
-    accountCreated: '',
-  })
-  const [badges, setBadges] = useState([])
+    user_id: "",
+    fullname: "",
+    email: "",
+    password: "",
+    phone_number: "",
+    address: "",
+    accountCreated: "",
+  });
+  const [badges, setBadges] = useState([]);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('users'))
-    console.log('User:', user)
+    const userId = JSON.parse(localStorage.getItem("users")).user_id;
+    console.log("User:", userId);
 
-    if (user) {
-      setProfileData({
-        userid: user.user_id,
-        name: user.fullname,
-        email: user.email,
-        password: user.password,
-        phone: user.phone_number,
-        address: user.address,
-      })
-    }
+    const fetchProfile = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:3000/api/users/profile/${userId}`
+        );
+        console.log("Profile:", res.data);
+        setProfileData(res.data);
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      }
+    };
+    fetchProfile();
 
     const fetchBadges = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:3000/api/users/badge/${user.user_id}`
-        )
-        console.log('Badges:', res.data)
-        setBadges(res.data)
+          `http://localhost:3000/api/users/badge/${userId}`
+        );
+        console.log("Badges:", res.data);
+        setBadges(res.data);
       } catch (err) {
-        console.error('Error fetching badges:', err)
+        console.error("Error fetching badges:", err);
       }
-    }
-    fetchBadges()
-  }, [])
+    };
+    fetchBadges();
+  }, []);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       const res = await axios.put(
-        `http://localhost:3000/api/users/update/${profileData.userid}`,
+        `http://localhost:3000/api/users/update/${profileData.user_id}`,
         profileData
-      )
-      console.log(res.data)
-
-      localStorage.setItem('user')
-
-      alert('Profile updated successfully')
+      );
+      localStorage.setItem("users", JSON.stringify(res.data));
+      alert("Profile updated successfully");
+      window.location.reload();
     } catch {
-      console.log('Error updating profile')
+      console.log("Error updating profile");
     }
-  }
+  };
 
   return (
-    <div className='mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8'>
-      <form onSubmit={handleSubmit} className='space-y-8'>
+    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+      <form onSubmit={handleSubmit} className="space-y-8">
         {/* Profile Information */}
-        <div className='rounded-lg bg-white p-6 shadow-sm'>
-          <h2 className='text-xl font-semibold'>Profile Information</h2>
-          <div className='mt-4 flex items-center space-x-6'>
+        <div className="rounded-lg bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-semibold">Profile Information</h2>
+          <div className="mt-4 flex items-center space-x-6">
             <img
-              src={`https://avatar.iran.liara.run/username?username=${profileData.name}`}
-              alt='Profile'
-              className='h-25 w-25 rounded-lg object-cover'
+              src={`https://avatar.iran.liara.run/username?username=${profileData.fullname}`}
+              alt="Profile"
+              className="h-25 w-25 rounded-lg object-cover"
             />
-            <div className='flex-1 space-y-6'>
+            <div className="flex-1 space-y-6">
               <div>
                 <label
-                  htmlFor='name'
-                  className='block text-sm font-medium text-gray-700'
+                  htmlFor="fullname"
+                  className="block text-sm font-medium text-gray-700"
                 >
                   Name
                 </label>
                 <input
-                  type='text'
-                  id='name'
-                  value={profileData.name}
+                  type="text"
+                  id="fullname"
+                  value={profileData.fullname}
                   onChange={(e) =>
-                    setProfileData({ ...profileData, name: e.target.value })
+                    setProfileData({ ...profileData, fullname: e.target.value })
                   }
-                  className='mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 
               <div>
                 <label
-                  htmlFor='email'
-                  className='block text-sm font-medium text-gray-700'
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700"
                 >
                   Email
                 </label>
                 <input
-                  type='email'
-                  id='email'
+                  type="email"
+                  id="email"
                   value={profileData.email}
                   onChange={(e) =>
                     setProfileData({ ...profileData, email: e.target.value })
                   }
-                  className='mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
               <div>
                 <label
-                  htmlFor='password'
-                  className='block text-sm font-medium text-gray-700'
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700"
                 >
                   Password
                 </label>
                 <input
-                  type='text'
-                  id='password'
+                  type="text"
+                  id="password"
                   value={profileData.password}
                   onChange={(e) =>
                     setProfileData({ ...profileData, password: e.target.value })
                   }
-                  className='mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -157,78 +157,99 @@ export default function Profile() {
         </div>
 
         {/* Additional Information */}
-        <div className='rounded-lg bg-white p-6 shadow-sm'>
-          <h2 className='text-xl font-semibold'>Additional Information</h2>
-          <div className='mt-4 space-y-4'>
+        <div className="rounded-lg bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-semibold">Additional Information</h2>
+          <div className="mt-4 space-y-4">
             <div>
               <label
-                htmlFor='phone'
-                className='block text-sm font-medium text-gray-700'
+                htmlFor="phone_number"
+                className="block text-sm font-medium text-gray-700"
               >
                 Phone Number
               </label>
               <input
-                type='text'
-                id='phone'
-                value={profileData.phone}
+                type="text"
+                id="phone_number"
+                value={profileData.phone_number}
                 onChange={(e) =>
-                  setProfileData({ ...profileData, phone: e.target.value })
+                  setProfileData({
+                    ...profileData,
+                    phone_number: e.target.value,
+                  })
                 }
-                className='mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
             <div>
               <label
-                htmlFor='location'
-                className='block text-sm font-medium text-gray-700'
+                htmlFor="address"
+                className="block text-sm font-medium text-gray-700"
               >
-                Location
+                Address
               </label>
               <input
-                type='text'
-                id='location'
+                type="text"
+                id="address"
                 value={profileData.address}
                 onChange={(e) =>
                   setProfileData({ ...profileData, address: e.target.value })
                 }
-                className='mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
           </div>
         </div>
 
         <button
-          type='submit'
-          className='w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700'
+          type="submit"
+          className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
         >
           Save Changes
         </button>
       </form>
 
       {/* Badges */}
-      <div className='mt-8 rounded-lg bg-white p-6 shadow-sm'>
-        <h2 className='text-xl font-semibold'>Badges</h2>
-        <div className='mt-6 grid gap-6 sm:grid-cols-3'>
+      <div className="mt-8 rounded-lg bg-white p-6 shadow-sm">
+        <h2 className="text-xl font-semibold mb-6">Your Achievement Badges</h2>
+        <div className="mt-6">
           {badges.length === 0 ? (
-            <p className='text-center text-gray-500'>No badges earned yet</p>
+            <div className="col-span-3 text-center py-8">
+              <div className="text-gray-400 text-5xl mb-4">🏅</div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No Badges Earned Yet
+              </h3>
+              <p className="text-gray-500">
+                Complete surveys and reduce your carbon footprint to earn
+                badges!
+              </p>
+            </div>
           ) : (
-            badges.map((badge) => (
-              <div
-                key={badge.title}
-                className='flex flex-col items-center rounded-lg bg-gray-50 p-4 text-center'
-              >
-                <img
-                  src={badge.badge_url}
-                  alt={badge.badge}
-                  className='h-16 w-16 object-cover'
-                />
-                <h3 className='mt-2 font-medium'>{badge.badge_desc}</h3>
-              </div>
-            ))
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {badges.map((badge) => (
+                <div
+                  key={badge.badge_id}
+                  className="flex flex-col items-center justify-center p-6 rounded-xl bg-gradient-to-b from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 transition-all duration-300 shadow-sm hover:shadow-md"
+                >
+                  <div className="w-24 h-24 rounded-full flex items-center justify-center bg-white shadow-inner p-4 mb-4">
+                    <img
+                      src={badge.badge_url}
+                      alt={badge.badge_desc}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <h3 className="text-center font-medium text-gray-800 mb-2">
+                    {badge.badge_desc}
+                  </h3>
+                  <span className="text-sm text-gray-500">
+                    Earned on {new Date(badge.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }

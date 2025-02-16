@@ -19,11 +19,13 @@ const {
   getLeaderboardByAvgCarbon,
   getLeaderboardByStreak,
   getBadge,
+  getProfile,
 } = require('../controllers/user.controller.js')
 
 UserRoute.post('/signin', userSignIn)
 UserRoute.post('/signup', userSignUp)
 UserRoute.put('/update/:id', userUpdate)
+UserRoute.get('/profile/:id', getProfile)
 
 UserRoute.get('/articles', getArticles)
 UserRoute.get('/articles/:id', getArticle)

@@ -12,7 +12,7 @@ export default function Header() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    localStorage.removeItem("users");
     navigate("/auth/signin");
   };
 

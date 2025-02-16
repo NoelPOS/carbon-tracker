@@ -47,14 +47,14 @@ const userSignUp = async (req, res) => {
 const userUpdate = async (req, res) => {
   try {
     const { id } = req.params
-    const { name, email, password, address, phone } = req.body
+    const { fullname, email, password, phone_number, address } = req.body
 
     const result = await client.query(userUpdateQuery, [
-      name,
+      fullname,
       email,
       password,
+      phone_number,
       address,
-      phone,
       id,
     ])
 
@@ -299,12 +299,27 @@ const getBadge = async (req, res) => {
   try {
     const { user_id } = req.params
     const { rows: badges } = await client.query(
-      `SELECT badge_id, badge_url, badge_desc FROM Badge JOIN Reward ON Badge.badge_id = Reward.badge_id WHERE user_id = $1`,
+      `SELECT badge_url, badge_desc FROM Badge JOIN Reward ON Badge.badge_id = Reward.badge_id WHERE user_id = $1`,
       [user_id]
     )
     res.status(200).json(badges)
   } catch (err) {
     console.error('Error fetching badges:', err)
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+  }
+
+const getProfile = async (req, res) => {
+  try {
+    const { id } = req.params
+    console.log('User ID:', id)
+    const { rows: users } = await client.query(
+      `SELECT * FROM users WHERE user_id = $1`,
+      [id]
+    )
+    res.status(200).json(users[0])
+  } catch (err) {
+    console.error('Error fetching profile:', err)
     res.status(500).json({ error: 'Internal Server Error' })
   }
 }
@@ -327,4 +342,5 @@ module.exports = {
   getLeaderboardByAvgCarbon,
   getLeaderboardByStreak,
   getBadge,
+  getProfile,
 }

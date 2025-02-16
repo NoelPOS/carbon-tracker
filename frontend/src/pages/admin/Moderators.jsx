@@ -85,7 +85,7 @@ export default function Moderators() {
         {filteredModerators.map((moderator) => (
           <div key={moderator.id} className="rounded-lg bg-white p-6 shadow-sm">
             <img
-              src={moderator.image}
+              src={`https://avatar.iran.liara.run/username?username=${moderator.name}`}
               alt={moderator.name}
               className="h-16 w-16 rounded-full object-cover mb-4"
             />
