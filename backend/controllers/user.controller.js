@@ -307,7 +307,7 @@ const getBadge = async (req, res) => {
     console.error('Error fetching badges:', err)
     res.status(500).json({ error: 'Internal Server Error' })
   }
-  }
+}
 
 const getProfile = async (req, res) => {
   try {
@@ -320,6 +320,28 @@ const getProfile = async (req, res) => {
     res.status(200).json(users[0])
   } catch (err) {
     console.error('Error fetching profile:', err)
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
+
+const checkSession = async (req, res) => {
+  try {
+    const { user_id } = req.params
+    const { rows: users } = await client.query(
+      `SELECT status FROM users WHERE user_id = $1`,
+      [user_id]
+    )
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+
+    if (users[0].status === 'suspended') {
+      return res.status(200).json({ status: 'suspended' })
+    }
+
+    res.status(200).json({ status: 'active' })
+  } catch (err) {
+    console.error('Error checking session:', err)
     res.status(500).json({ error: 'Internal Server Error' })
   }
 }
@@ -343,4 +365,5 @@ module.exports = {
   getLeaderboardByStreak,
   getBadge,
   getProfile,
+  checkSession,
 }

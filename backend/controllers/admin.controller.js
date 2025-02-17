@@ -156,6 +156,19 @@ const updateUser = async (req, res) => {
   }
 }
 
+const updateModerator = async (req, res) => {
+  try {
+    const { moderator_id, status } = req.body
+    const moderator = await client.query(
+      'UPDATE Moderator SET status = $1 WHERE moderator_id = $2 RETURNING *',
+      [status, moderator_id]
+    )
+    res.status(200).json(moderator.rows[0])
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
+
 const deleteUser = async (req, res) => {
   try {
     const { user_id } = req.params
@@ -165,6 +178,19 @@ const deleteUser = async (req, res) => {
       [user_id]
     )
     res.status(200).json(user.rows[0])
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+}
+
+const deleteModerator = async (req, res) => {
+  try {
+    const { moderator_id } = req.params
+    const moderator = await client.query(
+      'DELETE FROM Moderator WHERE moderator_id = $1 RETURNING *',
+      [moderator_id]
+    )
+    res.status(200).json(moderator.rows[0])
   } catch (err) {
     res.status(500).json({ message: err.message })
   }
@@ -307,4 +333,6 @@ module.exports = {
   deleteQuestion,
   updateQuestion,
   updateOption,
+  updateModerator,
+  deleteModerator,
 }

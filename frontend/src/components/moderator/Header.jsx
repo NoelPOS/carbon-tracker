@@ -1,7 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 export default function Header() {
   const location = useLocation()
+  const navigate = useNavigate()
 
   const isActive = (path) => {
     return location.pathname === path
@@ -11,6 +13,7 @@ export default function Header() {
 
   const handleLogout = () => {
     localStorage.removeItem('moderator')
+    navigate('/auth/signin')
   }
 
   return (

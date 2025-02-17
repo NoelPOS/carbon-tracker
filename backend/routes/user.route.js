@@ -20,6 +20,7 @@ const {
   getLeaderboardByStreak,
   getBadge,
   getProfile,
+  checkSession,
 } = require('../controllers/user.controller.js')
 
 UserRoute.post('/signin', userSignIn)
@@ -44,5 +45,7 @@ UserRoute.get('/leaderboard/avgcarbon', getLeaderboardByAvgCarbon)
 UserRoute.get('/leaderboard/streak', getLeaderboardByStreak)
 
 UserRoute.get('/badge/:user_id', getBadge)
+
+UserRoute.get('/session/:user_id', checkSession)
 
 module.exports = { UserRoute }

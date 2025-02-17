@@ -21,6 +21,8 @@ const {
   getOptions,
   updateQuestion,
   updateOption,
+  updateModerator,
+  deleteModerator,
 } = require('../controllers/admin.controller.js')
 
 const AdminRoute = express.Router()
@@ -40,6 +42,9 @@ AdminRoute.post('/assign/badge', assignBadge)
 
 AdminRoute.put('/update/user', updateUser)
 AdminRoute.delete('/delete/user/:user_id', deleteUser)
+
+AdminRoute.put('/update/moderator', updateModerator)
+AdminRoute.delete('/delete/moderator/:moderator_id', deleteModerator)
 
 AdminRoute.get('/articles', getArticles)
 AdminRoute.put('/article/:id', updateArticle)

@@ -26,23 +26,9 @@ const getTasks = async (req, res) => {
       return res.status(400).json({ error: 'Moderator ID is required' })
     }
 
-    // Get all assigned task IDs for this moderator
-    const { rows: assignedTasks } = await client.query(
-      `SELECT task_id FROM assign WHERE moderator_id = $1 AND task_status = 'assigned'`,
-      [moderator_id]
-    )
-
-    if (assignedTasks.length === 0) {
-      return res.status(200).json([]) // No tasks assigned
-    }
-
-    // Extract all task_ids
-    const taskIds = assignedTasks.map((row) => row.task_id)
-
-    // Fetch all task details in one query
     const { rows: tasks } = await client.query(
-      `SELECT * FROM task WHERE task_id = ANY($1)`,
-      [taskIds]
+      `SELECT * FROM task WHERE task_id IN (SELECT task_id FROM assign WHERE moderator_id = $1) AND task_status = 'assigned'`,
+      [moderator_id]
     )
 
     res.status(200).json(tasks)
@@ -103,11 +89,11 @@ const getAllArticles = async (req, res) => {
   } catch (err) {
     console.error('Error fetching articles:', err)
     res.status(500).json({ error: 'Internal Server Error' })
-    }
+  }
 }
 
 const getArticleById = async (req, res) => {
-  const { article_id } = req.params;
+  const { article_id } = req.params
   try {
     // Get article and comments using a simple JOIN
     const { rows } = await client.query(
@@ -125,11 +111,11 @@ const getArticleById = async (req, res) => {
        LEFT JOIN comment c ON a.article_id = c.article_id
        WHERE a.article_id = $1`,
       [article_id]
-    );
+    )
 
     // If no article found
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'Article not found' });
+      return res.status(404).json({ error: 'Article not found' })
     }
 
     // Format the response
@@ -141,67 +127,81 @@ const getArticleById = async (req, res) => {
       img_url: rows[0].img_url,
       moderator_id: rows[0].moderator_id,
       comments: rows
-        .filter(row => row.comment_id) // Remove null comments
-        .map(row => ({
+        .filter((row) => row.comment_id) // Remove null comments
+        .map((row) => ({
           comment_id: row.comment_id,
           content: row.comment_content,
-          user_id: row.comment_user_id
-        }))
-    };
+          user_id: row.comment_user_id,
+        })),
+    }
 
-    res.status(200).json(article);
+    res.status(200).json(article)
   } catch (err) {
-    console.error('Error fetching article:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Error fetching article:', err)
+    res.status(500).json({ error: 'Internal Server Error' })
   }
 }
 
 const updateArticle = async (req, res) => {
-  const { article_id } = req.params;
-  const { title, subtitle, description, img_url } = req.body;
+  const { article_id } = req.params
+  const { title, subtitle, description, img_url } = req.body
   try {
-    const { rows } = await client.query(  
-      `UPDATE article SET title = $1, subtitle = $2, description = $3, img_url = $4 WHERE article_id = $5`,   
+    const { rows } = await client.query(
+      `UPDATE article SET title = $1, subtitle = $2, description = $3, img_url = $4 WHERE article_id = $5`,
       [title, subtitle, description, img_url, article_id]
-    );
-    res.status(200).json(rows[0]);
+    )
+    res.status(200).json(rows[0])
   } catch (err) {
-    console.error('Error updating article:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Error updating article:', err)
+    res.status(500).json({ error: 'Internal Server Error' })
   }
 }
 
 const deleteArticle = async (req, res) => {
-  const { article_id } = req.params;
+  const { article_id } = req.params
   try {
-    await client.query(
-      `DELETE FROM article WHERE article_id = $1`,
-      [article_id]
-    );
-    res.status(200).json({ message: 'Article deleted successfully' });
+    await client.query(`DELETE FROM article WHERE article_id = $1`, [
+      article_id,
+    ])
+    res.status(200).json({ message: 'Article deleted successfully' })
   } catch (err) {
-    console.error('Error deleting article:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-  }
-
-const deleteComment = async (req, res) => {
-  const { comment_id } = req.params;
-  try {
-    await client.query(
-      `DELETE FROM comment WHERE comment_id = $1`,
-      [comment_id]
-    );
-    res.status(200).json({ message: 'Comment deleted successfully' });
-  } catch (err) {
-    console.error('Error deleting comment:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Error deleting article:', err)
+    res.status(500).json({ error: 'Internal Server Error' })
   }
 }
 
+const deleteComment = async (req, res) => {
+  const { comment_id } = req.params
+  try {
+    await client.query(`DELETE FROM comment WHERE comment_id = $1`, [
+      comment_id,
+    ])
+    res.status(200).json({ message: 'Comment deleted successfully' })
+  } catch (err) {
+    console.error('Error deleting comment:', err)
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
 
-
-
+const checkSession = async (req, res) => {
+  const { moderator_id } = req.params
+  try {
+    const { rows } = await client.query(
+      `SELECT status FROM moderator WHERE moderator_id = $1`,
+      [moderator_id]
+    )
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Moderator not found' })
+    }
+    if (rows[0].status === 'suspended') {
+      return res.status(200).json({ status: 'suspended' })
+    }
+    res.status(200).json({ status: 'active' })
+  } catch (err) {
+    console.error('Error checking session:', err)
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
 
 module.exports = {
   ModeratorSignIn,
@@ -212,4 +212,5 @@ module.exports = {
   updateArticle,
   deleteArticle,
   deleteComment,
-}     
+  checkSession,
+}
