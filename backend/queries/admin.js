@@ -1,122 +1,77 @@
-// -- Admin Table (Only one admin exists)
-// CREATE TABLE Admin (
-//     admin_id SERIAL PRIMARY KEY,
-//     email VARCHAR(255) UNIQUE NOT NULL,
-//     password VARCHAR(255) NOT NULL
-// );
+const adminSignInQuery = `SELECT * FROM Admin WHERE email = $1 AND password = $2`
 
-// -- Moderator Table
-// CREATE TABLE Moderator (
-//     moderator_id SERIAL PRIMARY KEY,
-//     email VARCHAR(255) UNIQUE NOT NULL,
-//     password VARCHAR(255) NOT NULL,
-//     status VARCHAR(10) CHECK (status IN ('active', 'suspended')) DEFAULT 'active'
-// );
+const createTaskQuery = `INSERT INTO Task (task_title, task_desc, admin_id) VALUES ($1, $2, $3) RETURNING *`
 
-// -- Users Table
-// CREATE TABLE Users (
-//     user_id SERIAL PRIMARY KEY,
-//     fullname VARCHAR(255) NOT NULL,
-//     email VARCHAR(255) UNIQUE NOT NULL,
-//     password VARCHAR(255) NOT NULL,
-//     address VARCHAR(255),
-//     phone_number VARCHAR(20),
-//     status VARCHAR(10) CHECK (status IN ('active', 'suspended')) DEFAULT 'active',
-//     streak_day INT DEFAULT 0,
-//     last_survey DATE
-// );
+const createModeratorQuery = `INSERT INTO Moderator (name, email, password) VALUES ($1, $2, $3) RETURNING *`
 
-// -- Question Table
-// CREATE TABLE Question (
-//     question_id SERIAL PRIMARY KEY,
-//     question_title TEXT NOT NULL,
-//     admin_id INT REFERENCES Admin(admin_id) ON DELETE CASCADE ON UPDATE CASCADE
-// );
+const createBadgeQuery = `INSERT INTO Badge (admin_id, badge_desc, badge_url) VALUES ($1, $2, $3) RETURNING *`
 
-// -- Option Table
-// CREATE TABLE Option (
-//     option_id SERIAL PRIMARY KEY,
-//     question_id INT REFERENCES Question(question_id) ON DELETE CASCADE ON UPDATE CASCADE,
-//     option_name VARCHAR(255) NOT NULL,
-//     carbon_value DECIMAL(10,2) NOT NULL
-// );
+const getModeratorsQuery = `SELECT * FROM Moderator`
 
-// -- Task Table
-// CREATE TABLE Task (
-//     task_id SERIAL PRIMARY KEY,
-//     task_title VARCHAR(255) NOT NULL,
-//     task_desc TEXT,
-//     admin_id INT REFERENCES Admin(admin_id) ON DELETE CASCADE ON UPDATE CASCADE
-// );
+const getTasksQuery = `SELECT * FROM Task`
 
-// -- Assign Table (Links Tasks to Moderators)
-// CREATE TABLE Assign (
-//     task_id INT REFERENCES Task(task_id) ON DELETE CASCADE ON UPDATE CASCADE,
-//     moderator_id INT REFERENCES Moderator(moderator_id) ON DELETE CASCADE ON UPDATE CASCADE,
-//     PRIMARY KEY (task_id, moderator_id)
-// );
+const getBadgesQuery = `SELECT * FROM Badge`
 
-// -- Article Table
-// CREATE TABLE Article (
-//     article_id SERIAL PRIMARY KEY,
-//     title VARCHAR(255) NOT NULL,
-//     subtitle VARCHAR(255),
-//     description TEXT NOT NULL,
-//     img_url VARCHAR(255),
-//     status VARCHAR(10) CHECK (status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending',
-//     moderator_id INT REFERENCES Moderator(moderator_id) ON DELETE CASCADE ON UPDATE CASCADE
-// );
+const getUsersQuery = `SELECT * FROM Users`
 
-// -- Review Table (Admin Reviews Articles)
-// CREATE TABLE Review (
-//     review_id SERIAL PRIMARY KEY,
-//     admin_id INT REFERENCES Admin(admin_id) ON DELETE CASCADE ON UPDATE CASCADE,
-//     article_id INT REFERENCES Article(article_id) ON DELETE CASCADE ON UPDATE CASCADE,
-//     decision VARCHAR(10) CHECK (decision IN ('accepted', 'rejected')) NOT NULL,
-//     review_date DATE DEFAULT CURRENT_DATE
-// );
+const updateTaskStatus = `UPDATE Task SET task_status = $1 WHERE task_id = $2 RETURNING *`
 
-// -- Comment Table
-// CREATE TABLE Comment (
-//     comment_id SERIAL PRIMARY KEY,
-//     content TEXT NOT NULL,
-//     user_id INT REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
-//     article_id INT REFERENCES Article(article_id) ON DELETE CASCADE ON UPDATE CASCADE
-// );
+const assignTaskQuery = `INSERT INTO Assign (task_id, moderator_id) VALUES ($1, $2) RETURNING *`
 
-// -- Reply Table
-// CREATE TABLE Reply (
-//     reply_id SERIAL PRIMARY KEY,
-//     content TEXT NOT NULL,
-//     user_id INT REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
-//     comment_id INT REFERENCES Comment(comment_id) ON DELETE CASCADE ON UPDATE CASCADE
-// );
+const checkBadgeQuery = `SELECT * FROM Reward WHERE badge_id = $1 AND user_id = $2`
 
-// -- Badge Table
-// CREATE TABLE Badge (
-//     badge_id SERIAL PRIMARY KEY,
-//     badgeimg_url VARCHAR(255),
-//     badge_desc TEXT,
-//     admin_id INT REFERENCES Admin(admin_id) ON DELETE CASCADE ON UPDATE CASCADE
-// );
+const assignBadgeQuery = `INSERT INTO Reward (badge_id, user_id) VALUES ($1, $2) RETURNING *`
 
-// -- Reward Table (Links Badges to Users)
-// CREATE TABLE Reward (
-//     badge_id INT REFERENCES Badge(badge_id) ON DELETE CASCADE ON UPDATE CASCADE,
-//     user_id INT REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
-//     PRIMARY KEY (badge_id, user_id)
-// );
+const updateUserStatusQuery = `UPDATE Users SET status = $1 WHERE user_id = $2 RETURNING *`
 
-// -- SurveyRecord Table
-// CREATE TABLE SurveyRecord (
-//     record_id SERIAL PRIMARY KEY,
-//     survey_date DATE DEFAULT CURRENT_DATE,
-//     carbon_amount DECIMAL(10,2) NOT NULL,
-//     user_id INT REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
-// );
+const updateModeratorStatusQuery = `UPDATE Moderator SET status = $1 WHERE moderator_id = $2 RETURNING *`
 
+const deleteUserQuery = `DELETE FROM Users WHERE user_id = $1 RETURNING *`
 
-const adminSignInQuery = `SELECT * FROM Admin WHERE email = $1 AND password = $2`;
+const deleteModeratorQuery = `DELETE FROM Moderator WHERE moderator_id = $1 RETURNING *`
 
+const getPendingArticlesQuery = `SELECT * FROM Article WHERE status = $1`
 
-module.exports = { adminSignInQuery }
+const updateArticleStatusQuery = `UPDATE Article SET status = $1 WHERE article_id = $2 RETURNING *`
+
+const getQuestionsQuery = `SELECT * FROM Question`
+
+const createQuestionQuery = `INSERT INTO Question (question_title, admin_id) VALUES ($1, $2) RETURNING *`
+
+const createOptionQuery = `INSERT INTO Option (question_id, option_name, carbon_value) VALUES ($1, $2, $3) RETURNING *`
+
+const deleteQuestionQuery = `DELETE FROM Question WHERE question_id = $1 RETURNING *`
+
+const getOptionsQuery = `SELECT * FROM Option WHERE question_id = $1`
+
+const updateQuestionQuery = `UPDATE Question SET question_title = $1 WHERE question_id = $2 RETURNING *`
+
+const updateOptionQuery = `UPDATE Option SET option_name = $1, carbon_value = $2 WHERE option_id = $3 RETURNING *`
+
+module.exports = {
+  adminSignInQuery,
+  createTaskQuery,
+  createModeratorQuery,
+  createBadgeQuery,
+  getModeratorsQuery,
+  getTasksQuery,
+  getBadgesQuery,
+  getUsersQuery,
+  updateTaskStatus,
+  assignTaskQuery,
+  checkBadgeQuery,
+  assignBadgeQuery,
+  updateUserStatusQuery,
+  updateModeratorStatusQuery,
+  deleteUserQuery,
+  deleteModeratorQuery,
+  getPendingArticlesQuery,
+  updateArticleStatusQuery,
+  getQuestionsQuery,
+  createQuestionQuery,
+  createOptionQuery,
+  deleteQuestionQuery,
+  getOptionsQuery,
+  updateQuestionQuery,
+  updateOptionQuery,
+}

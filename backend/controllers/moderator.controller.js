@@ -1,13 +1,23 @@
 const { client } = require('../db/dbconnect.js')
+const {
+  moderatorSignInQuery,
+  getTasksQuery,
+  updateTaskStatusQuery,
+  createArticleQuery,
+  getAllArticlesQuery,
+  getArticleByIdQuery,
+  updateArticleQuery,
+  deleteArticleQuery,
+  deleteCommentQuery,
+  checkStatusQuery,
+  updateProfileQuery,
+} = require('../queries/moderator.js')
 
 const ModeratorSignIn = async (req, res) => {
   try {
     const { email, password } = req.body
     console.log(email, password)
-    const { rows } = await client.query(
-      `SELECT * FROM moderator WHERE email = $1 AND password = $2`,
-      [email, password]
-    )
+    const { rows } = await client.query(moderatorSignInQuery, [email, password])
     if (rows.length === 0) {
       res.status(401).send('Invalid email or password')
     } else {
@@ -26,10 +36,7 @@ const getTasks = async (req, res) => {
       return res.status(400).json({ error: 'Moderator ID is required' })
     }
 
-    const { rows: tasks } = await client.query(
-      `SELECT * FROM task WHERE task_id IN (SELECT task_id FROM assign WHERE moderator_id = $1) AND task_status = 'assigned'`,
-      [moderator_id]
-    )
+    const { rows: tasks } = await client.query(getTasksQuery, [moderator_id])
 
     res.status(200).json(tasks)
   } catch (err) {
@@ -52,20 +59,20 @@ const createArticle = async (req, res) => {
 
     // update task status to completed
     try {
-      await client.query(
-        `UPDATE task SET task_status = 'completed' WHERE task_id = $1`,
-        [task_id]
-      )
+      await client.query(updateTaskStatusQuery, [task_id])
     } catch (err) {
       console.error('Error updating task status:', err)
     }
 
     // Insert the new article
     try {
-      const { rows } = await client.query(
-        `INSERT INTO article (title, subtitle, description, img_url, moderator_id) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-        [title, subtitle, description, img_url, moderator_id]
-      )
+      const { rows } = await client.query(createArticleQuery, [
+        title,
+        subtitle,
+        description,
+        img_url,
+        moderator_id,
+      ])
       console.log(rows[0])
       res.status(201).json(rows[0])
     } catch (err) {
@@ -81,10 +88,7 @@ const createArticle = async (req, res) => {
 const getAllArticles = async (req, res) => {
   const { moderator_id } = req.params
   try {
-    const { rows } = await client.query(
-      `SELECT * FROM article WHERE moderator_id = $1`,
-      [moderator_id]
-    )
+    const { rows } = await client.query(getAllArticlesQuery, [moderator_id])
     res.status(200).json(rows)
   } catch (err) {
     console.error('Error fetching articles:', err)
@@ -96,22 +100,7 @@ const getArticleById = async (req, res) => {
   const { article_id } = req.params
   try {
     // Get article and comments using a simple JOIN
-    const { rows } = await client.query(
-      `SELECT 
-        a.article_id,
-        a.title,
-        a.subtitle,
-        a.description,
-        a.img_url,
-        a.moderator_id,
-        c.comment_id,
-        c.content as comment_content,
-        c.user_id as comment_user_id
-       FROM article a
-       LEFT JOIN comment c ON a.article_id = c.article_id
-       WHERE a.article_id = $1`,
-      [article_id]
-    )
+    const { rows } = await client.query(getArticleByIdQuery, [article_id])
 
     // If no article found
     if (rows.length === 0) {
@@ -146,10 +135,13 @@ const updateArticle = async (req, res) => {
   const { article_id } = req.params
   const { title, subtitle, description, img_url } = req.body
   try {
-    const { rows } = await client.query(
-      `UPDATE article SET title = $1, subtitle = $2, description = $3, img_url = $4 WHERE article_id = $5`,
-      [title, subtitle, description, img_url, article_id]
-    )
+    const { rows } = await client.query(updateArticleQuery, [
+      title,
+      subtitle,
+      description,
+      img_url,
+      article_id,
+    ])
     res.status(200).json(rows[0])
   } catch (err) {
     console.error('Error updating article:', err)
@@ -160,9 +152,7 @@ const updateArticle = async (req, res) => {
 const deleteArticle = async (req, res) => {
   const { article_id } = req.params
   try {
-    await client.query(`DELETE FROM article WHERE article_id = $1`, [
-      article_id,
-    ])
+    await client.query(deleteArticleQuery, [article_id])
     res.status(200).json({ message: 'Article deleted successfully' })
   } catch (err) {
     console.error('Error deleting article:', err)
@@ -173,9 +163,7 @@ const deleteArticle = async (req, res) => {
 const deleteComment = async (req, res) => {
   const { comment_id } = req.params
   try {
-    await client.query(`DELETE FROM comment WHERE comment_id = $1`, [
-      comment_id,
-    ])
+    await client.query(deleteCommentQuery, [comment_id])
     res.status(200).json({ message: 'Comment deleted successfully' })
   } catch (err) {
     console.error('Error deleting comment:', err)
@@ -186,10 +174,7 @@ const deleteComment = async (req, res) => {
 const checkSession = async (req, res) => {
   const { moderator_id } = req.params
   try {
-    const { rows } = await client.query(
-      `SELECT status FROM moderator WHERE moderator_id = $1`,
-      [moderator_id]
-    )
+    const { rows } = await client.query(checkStatusQuery, [moderator_id])
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Moderator not found' })
     }
@@ -199,6 +184,22 @@ const checkSession = async (req, res) => {
     res.status(200).json({ status: 'active' })
   } catch (err) {
     console.error('Error checking session:', err)
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
+
+const updateProfile = async (req, res) => {
+  const { moderator_id } = req.params
+  const { name, email } = req.body
+  try {
+    const { rows } = await client.query(updateProfileQuery, [
+      name,
+      email,
+      moderator_id,
+    ])
+    res.status(200).json(rows[0])
+  } catch (err) {
+    console.error('Error updating profile:', err)
     res.status(500).json({ error: 'Internal Server Error' })
   }
 }
@@ -213,4 +214,5 @@ module.exports = {
   deleteArticle,
   deleteComment,
   checkSession,
+  updateProfile,
 }

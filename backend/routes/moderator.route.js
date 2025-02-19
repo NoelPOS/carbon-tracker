@@ -10,6 +10,7 @@ const {
   deleteArticle,
   deleteComment,
   checkSession,
+  updateProfile,
 } = require('../controllers/moderator.controller.js')
 
 const ModeratorRoute = express.Router()
@@ -24,5 +25,7 @@ ModeratorRoute.get('/articles/:moderator_id', getAllArticles)
 ModeratorRoute.get('/session/:moderator_id', checkSession)
 
 ModeratorRoute.delete('/comment/:comment_id', deleteComment)
+
+ModeratorRoute.put('/profile/update/:moderator_id', updateProfile)
 
 module.exports = { ModeratorRoute }

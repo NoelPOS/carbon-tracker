@@ -43,8 +43,25 @@ export default function Survey() {
     fetchQuestionsAndOptions()
   }, [])
 
-  const handleStartSurvey = () => {
-    setCurrentStep('questions')
+  const handleStartSurvey = async () => {
+    const last_survey = JSON.parse(localStorage.getItem('users')).last_survey
+    const today = new Date().toISOString().split('T')[0]
+    console.log(last_survey, today)
+
+    if (
+      last_survey !== today &&
+      new Date(today) - new Date(last_survey) >= 86400000 &&
+      new Date(today) - new Date(last_survey) < 172800000
+    ) {
+      setCurrentStep('questions')
+    } else if (
+      last_survey !== today &&
+      new Date(today) - new Date(last_survey) >= 172800000
+    ) {
+      setCurrentStep('questions')
+    } else {
+      alert('You have already taken the survey today!')
+    }
   }
 
   const handleSelectAnswer = (answer) => {
@@ -79,18 +96,13 @@ export default function Survey() {
 
   const handleSaveRecord = async () => {
     const user_id = JSON.parse(localStorage.getItem('users')).user_id
-    const res = await axios.post(
-      `http://localhost:3000/api/users/save-record`,
-      {
-        user_id,
-        carbon_amount: averageCarbonResult,
-      }
-    )
     const last_survey = JSON.parse(localStorage.getItem('users')).last_survey
     const today = new Date().toISOString().split('T')[0]
+    console.log(last_survey, today)
     if (
       last_survey !== today &&
-      new Date(today) - new Date(last_survey) <= 86400000
+      new Date(today) - new Date(last_survey) >= 86400000 &&
+      new Date(today) - new Date(last_survey) < 172800000
     ) {
       const res = await axios.put(
         `http://localhost:3000/api/users/streakupdate/${user_id}`,
@@ -100,9 +112,18 @@ export default function Survey() {
         }
       )
       localStorage.setItem('users', JSON.stringify(res.data))
+      await axios
+        .post(`http://localhost:3000/api/users/save-record`, {
+          user_id,
+          carbon_amount: averageCarbonResult,
+        })
+        .then(() => {
+          alert('Record saved successfully!')
+          navigate('/dashboard')
+        })
     } else if (
       last_survey !== today &&
-      new Date(today) - new Date(last_survey) > 86400000
+      new Date(today) - new Date(last_survey) >= 172800000
     ) {
       const res = await axios.put(
         `http://localhost:3000/api/users/streakupdate/${user_id}`,
@@ -112,10 +133,17 @@ export default function Survey() {
         }
       )
       localStorage.setItem('users', JSON.stringify(res.data))
-    }
-
-    console.log(res.data)
-    if (res.status === 201) {
+      await axios
+        .post(`http://localhost:3000/api/users/save-record`, {
+          user_id,
+          carbon_amount: averageCarbonResult,
+        })
+        .then(() => {
+          alert('Record saved successfully!')
+          navigate('/dashboard')
+        })
+    } else {
+      alert('You have already taken the survey today!')
       navigate('/user')
     }
   }

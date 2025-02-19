@@ -182,6 +182,13 @@ export default function CreateArticle() {
                 <p className='pl-1'>or drag and drop</p>
               </div>
               <p className='text-xs text-gray-500'>PNG, JPG, GIF up to 10MB</p>
+              {formData.image && (
+                <img
+                  src={URL.createObjectURL(formData.image)}
+                  alt=''
+                  className='h-24 w-24 object-cover mx-auto mt-4 rounded-lg'
+                />
+              )}
             </div>
           </div>
         </div>

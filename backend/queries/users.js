@@ -1,19 +1,30 @@
-// -- Admin Table (Only one admin exists)
-// CREATE TABLE Admin (
-//     admin_id SERIAL PRIMARY KEY,
-//     email VARCHAR(255) UNIQUE NOT NULL,
-//     password VARCHAR(255) NOT NULL
-// );
+const userSignUpQuery =
+  'INSERT INTO users (fullname, email, password, address, phone_number) VALUES ($1, $2, $3, $4, $5) RETURNING *'
 
-// -- Moderator Table
-// CREATE TABLE Moderator (
-//     moderator_id SERIAL PRIMARY KEY,
-//     email VARCHAR(255) UNIQUE NOT NULL,
-//     password VARCHAR(255) NOT NULL,
-//     status VARCHAR(10) CHECK (status IN ('active', 'suspended')) DEFAULT 'active'
-// );
+const userSignInQuery = 'SELECT * FROM users WHERE email = $1 AND password = $2'
 
-// -- Users Table
+const userUpdateQuery = `
+  UPDATE users 
+  SET fullname = $1, 
+      email = $2, 
+      password = $3, 
+      phone_number = $4, 
+      address = $5 
+      WHERE user_id = $6 
+      RETURNING *`
+
+const articleSearchQuery = `SELECT * FROM article WHERE title ILIKE $1 AND status = $2`
+
+const getArticlesQuery = `SELECT * FROM article WHERE status = $1`
+
+const getArticleByIdQuery = `SELECT * FROM article WHERE article_id = $1`
+
+const createCommentQuery = `INSERT INTO comment (content, article_id, user_id) VALUES ($1, $2, $3) RETURNING *`
+
+const getCommentsQuery = `SELECT * FROM comment JOIN users ON comment.user_id = users.user_id WHERE article_id = $1`
+
+const createReplyQuery = `INSERT INTO reply (content, comment_id, user_id) VALUES ($1, $2, $3) RETURNING *`
+
 // CREATE TABLE Users (
 //     user_id SERIAL PRIMARY KEY,
 //     fullname VARCHAR(255) NOT NULL,
@@ -24,36 +35,6 @@
 //     status VARCHAR(10) CHECK (status IN ('active', 'suspended')) DEFAULT 'active',
 //     streak_day INT DEFAULT 0,
 //     last_survey DATE
-// );
-
-// -- Question Table
-// CREATE TABLE Question (
-//     question_id SERIAL PRIMARY KEY,
-//     question_title TEXT NOT NULL,
-//     admin_id INT REFERENCES Admin(admin_id) ON DELETE CASCADE ON UPDATE CASCADE
-// );
-
-// -- Option Table
-// CREATE TABLE Option (
-//     option_id SERIAL PRIMARY KEY,
-//     question_id INT REFERENCES Question(question_id) ON DELETE CASCADE ON UPDATE CASCADE,
-//     option_name VARCHAR(255) NOT NULL,
-//     carbon_value DECIMAL(10,2) NOT NULL
-// );
-
-// -- Task Table
-// CREATE TABLE Task (
-//     task_id SERIAL PRIMARY KEY,
-//     task_title VARCHAR(255) NOT NULL,
-//     task_desc TEXT,
-//     admin_id INT REFERENCES Admin(admin_id) ON DELETE CASCADE ON UPDATE CASCADE
-// );
-
-// -- Assign Table (Links Tasks to Moderators)
-// CREATE TABLE Assign (
-//     task_id INT REFERENCES Task(task_id) ON DELETE CASCADE ON UPDATE CASCADE,
-//     moderator_id INT REFERENCES Moderator(moderator_id) ON DELETE CASCADE ON UPDATE CASCADE,
-//     PRIMARY KEY (task_id, moderator_id)
 // );
 
 // -- Article Table
@@ -67,16 +48,6 @@
 //     moderator_id INT REFERENCES Moderator(moderator_id) ON DELETE CASCADE ON UPDATE CASCADE
 // );
 
-// -- Review Table (Admin Reviews Articles)
-// CREATE TABLE Review (
-//     review_id SERIAL PRIMARY KEY,
-//     admin_id INT REFERENCES Admin(admin_id) ON DELETE CASCADE ON UPDATE CASCADE,
-//     article_id INT REFERENCES Article(article_id) ON DELETE CASCADE ON UPDATE CASCADE,
-//     decision VARCHAR(10) CHECK (decision IN ('accepted', 'rejected')) NOT NULL,
-//     review_date DATE DEFAULT CURRENT_DATE
-// );
-
-// -- Comment Table
 // CREATE TABLE Comment (
 //     comment_id SERIAL PRIMARY KEY,
 //     content TEXT NOT NULL,
@@ -84,7 +55,6 @@
 //     article_id INT REFERENCES Article(article_id) ON DELETE CASCADE ON UPDATE CASCADE
 // );
 
-// -- Reply Table
 // CREATE TABLE Reply (
 //     reply_id SERIAL PRIMARY KEY,
 //     content TEXT NOT NULL,
@@ -92,52 +62,60 @@
 //     comment_id INT REFERENCES Comment(comment_id) ON DELETE CASCADE ON UPDATE CASCADE
 // );
 
-// -- Badge Table
-// CREATE TABLE Badge (
-//     badge_id SERIAL PRIMARY KEY,
-//     badgeimg_url VARCHAR(255),
-//     badge_desc TEXT,
-//     admin_id INT REFERENCES Admin(admin_id) ON DELETE CASCADE ON UPDATE CASCADE
-// );
+// get the replies for a comment along with the user who replied so we need to join the reply table with the users table
 
-// -- Reward Table (Links Badges to Users)
-// CREATE TABLE Reward (
-//     badge_id INT REFERENCES Badge(badge_id) ON DELETE CASCADE ON UPDATE CASCADE,
-//     user_id INT REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
-//     PRIMARY KEY (badge_id, user_id)
-// );
+// SELECT * FROM reply JOIN users ON reply.user_id = users.user_id WHERE comment_id = $1
+// `SELECT * FROM reply WHERE comment_id = $1`
+const getRepliesQuery = `SELECT * FROM reply JOIN users ON reply.user_id = users.user_id WHERE comment_id = $1`
 
-// -- SurveyRecord Table
-// CREATE TABLE SurveyRecord (
-//     record_id SERIAL PRIMARY KEY,
-//     survey_date DATE DEFAULT CURRENT_DATE,
-//     carbon_amount DECIMAL(10,2) NOT NULL,
-//     user_id INT REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
-// );
+const getQuestionsQuery = `SELECT * FROM question`
 
+const createRecordQuery = `INSERT INTO SurveyRecord (user_id, carbon_amount) VALUES ($1, $2) RETURNING *`
 
+const getRecordsQuery = `SELECT * FROM SurveyRecord WHERE user_id = $1`
 
-const getAllUsers = 'SELECT * FROM users'
+const userStreakUpdateQuery = `UPDATE users SET last_survey = $1, streak_day = $2 WHERE user_id = $3 RETURNING *`
 
-const userSignUpQuery = 'INSERT INTO users (fullname, email, password, address, phone_number) VALUES ($1, $2, $3, $4, $5) RETURNING *'
+const getLeaderboardByNameQuery = `SELECT fullname, AVG(carbon_amount) as avg, streak_day as streak 
+FROM users JOIN SurveyRecord ON users.user_id = SurveyRecord.user_id 
+GROUP BY fullname, streak_day 
+ORDER BY fullname ASC`
 
+const getLeaderboardByCarbonQuery = `SELECT fullname, AVG(carbon_amount) as avg, streak_day as streak 
+FROM users JOIN SurveyRecord ON users.user_id = SurveyRecord.user_id 
+GROUP BY fullname, streak_day 
+ORDER BY avg DESC`
 
-const userSignInQuery = 'SELECT * FROM users WHERE email = $1 AND password = $2'
+const getLeaderboardByStreakQuery = `SELECT fullname, AVG(carbon_amount) as avg, streak_day as streak FROM users JOIN SurveyRecord ON users.user_id = SurveyRecord.user_id GROUP BY fullname, streak_day ORDER BY streak DESC`
 
+const getBadgeQuery = `SELECT badge_url, badge_desc FROM Badge JOIN Reward ON Badge.badge_id = Reward.badge_id WHERE user_id = $1`
 
-const userUpdateQuery = `
-  UPDATE users 
-  SET fullname = $1, 
-      email = $2, 
-      password = $3, 
-      phone_number = $4, 
-      address = $5 
-      WHERE user_id = $6 
-      RETURNING *`
+const getProfileQuery = `SELECT * FROM users WHERE user_id = $1`
+
+const checkStatusQuery = `SELECT status FROM users WHERE user_id = $1`
+
+const userResetStreakQuery = `UPDATE users SET streak_day = 0 WHERE user_id = $1 RETURNING *`
 
 module.exports = {
-  getAllUsers,
   userSignInQuery,
   userSignUpQuery,
-  userUpdateQuery
+  userUpdateQuery,
+  articleSearchQuery,
+  getArticlesQuery,
+  getArticleByIdQuery,
+  createCommentQuery,
+  getCommentsQuery,
+  createReplyQuery,
+  getRepliesQuery,
+  getQuestionsQuery,
+  createRecordQuery,
+  getRecordsQuery,
+  userStreakUpdateQuery,
+  getLeaderboardByNameQuery,
+  getLeaderboardByCarbonQuery,
+  getLeaderboardByStreakQuery,
+  getBadgeQuery,
+  getProfileQuery,
+  checkStatusQuery,
+  userResetStreakQuery,
 }

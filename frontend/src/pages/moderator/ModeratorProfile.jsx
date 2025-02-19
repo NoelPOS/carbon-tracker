@@ -1,17 +1,41 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 
 export default function ModeratorProfile() {
   const [profileData, setProfileData] = useState({
-    name: 'Alex Johnson',
-    email: 'alex.johnson@example.com',
-    phone: '+123 456 789',
-    location: 'Samut Prakan, Thailand',
-    accountCreated: 'January 15, 2024',
+    name: '',
+    email: '',
   })
+
+  useEffect(() => {
+    const moderator = JSON.parse(localStorage.getItem('moderator'))
+    setProfileData({
+      name: moderator.name,
+      email: moderator.email,
+    })
+  }, [])
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // Handle profile update
+    try {
+      const moderator = JSON.parse(localStorage.getItem('moderator'))
+      axios
+        .put(
+          `http://localhost:3000/api/moderator/profile/update/${moderator.moderator_id}`,
+          profileData
+        )
+        .then((res) => {
+          localStorage.setItem('moderator', JSON.stringify(res.data))
+          alert('Profile updated successfully')
+          window.location.reload()
+        })
+        .catch((err) => {
+          console.error('Error updating profile:', err)
+          alert('An error occurred. Please try again.')
+        })
+    } catch (err) {
+      console.error('Error in userUpdate:', err)
+    }
   }
 
   return (
@@ -25,7 +49,7 @@ export default function ModeratorProfile() {
               <img
                 src={`https://avatar.iran.liara.run/username?username=${profileData.name}`}
                 alt='Profile'
-                className='h-25 w-25 rounded-lg object-cover'
+                className='h-25 w-25 rounded-lg object-cover mx-auto'
               />
               <div>
                 <label
