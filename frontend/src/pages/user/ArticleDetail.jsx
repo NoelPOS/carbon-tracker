@@ -62,6 +62,8 @@ export default function ArticleDetail() {
       )
       console.log(res.data)
       setComments((prev) => [...prev, res.data])
+      setNewComment('')
+      window.location.reload()
     } catch (err) {
       console.error(err)
     }

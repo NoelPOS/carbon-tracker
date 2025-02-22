@@ -162,8 +162,12 @@ const assignBadge = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const { user_id, status } = req.body
+    const { user_id, status, admin_id } = req.body
     const user = await client.query(updateUserStatusQuery, [status, user_id])
+    await client.query(
+      'INSERT INTO user_update (user_id, admin_id) VALUES ($1, $2)',
+      [user_id, admin_id]
+    )
     res.status(200).json(user.rows[0])
   } catch (err) {
     res.status(500).json({ message: err.message })
@@ -172,11 +176,17 @@ const updateUser = async (req, res) => {
 
 const updateModerator = async (req, res) => {
   try {
-    const { moderator_id, status } = req.body
+    const { moderator_id, status, admin_id } = req.body
     const moderator = await client.query(updateModeratorStatusQuery, [
       status,
       moderator_id,
     ])
+
+    await client.query(
+      'INSERT INTO moderator_update (moderator_id, admin_id) VALUES ($1, $2)',
+      [moderator_id, admin_id]
+    )
+
     res.status(200).json(moderator.rows[0])
   } catch (err) {
     res.status(500).json({ message: err.message })
@@ -283,11 +293,15 @@ const getOptions = async (req, res) => {
 const updateQuestion = async (req, res) => {
   try {
     const { question_id } = req.params
-    const { question } = req.body
+    const { question, admin_id } = req.body
     const updatedQuestion = await client.query(updateQuestionQuery, [
       question,
       question_id,
     ])
+    await client.query(
+      'INSERT INTO question_edit (question_id, admin_id) VALUES ($1, $2)',
+      [question_id, admin_id]
+    )
     res.status(200).json(updatedQuestion.rows[0])
   } catch (err) {
     res.status(500).json({ message: err.message })

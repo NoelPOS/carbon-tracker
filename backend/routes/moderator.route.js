@@ -24,7 +24,7 @@ ModeratorRoute.delete('/article/:article_id', deleteArticle)
 ModeratorRoute.get('/articles/:moderator_id', getAllArticles)
 ModeratorRoute.get('/session/:moderator_id', checkSession)
 
-ModeratorRoute.delete('/comment/:comment_id', deleteComment)
+ModeratorRoute.delete('/:moderator_id/comment/:comment_id', deleteComment)
 
 ModeratorRoute.put('/profile/update/:moderator_id', updateProfile)
 

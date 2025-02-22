@@ -101,6 +101,7 @@ const getArticleById = async (req, res) => {
   try {
     // Get article and comments using a simple JOIN
     const { rows } = await client.query(getArticleByIdQuery, [article_id])
+    // console.log(rows)
 
     // If no article found
     if (rows.length === 0) {
@@ -121,6 +122,7 @@ const getArticleById = async (req, res) => {
           comment_id: row.comment_id,
           content: row.comment_content,
           user_id: row.comment_user_id,
+          user_name: row.user_name,
         })),
     }
 
@@ -133,7 +135,7 @@ const getArticleById = async (req, res) => {
 
 const updateArticle = async (req, res) => {
   const { article_id } = req.params
-  const { title, subtitle, description, img_url } = req.body
+  const { title, subtitle, description, img_url, moderator_id } = req.body
   try {
     const { rows } = await client.query(updateArticleQuery, [
       title,
@@ -142,6 +144,10 @@ const updateArticle = async (req, res) => {
       img_url,
       article_id,
     ])
+    await client.query(
+      'INSERT INTO article_update (article_id, moderator_id) VALUES ($1, $2)',
+      [article_id, moderator_id]
+    )
     res.status(200).json(rows[0])
   } catch (err) {
     console.error('Error updating article:', err)
@@ -161,16 +167,23 @@ const deleteArticle = async (req, res) => {
 }
 
 const deleteComment = async (req, res) => {
-  const { comment_id } = req.params
+  const { moderator_id, comment_id } = req.params
   try {
+    const { rows } = await client.query(
+      'INSERT INTO comment_deletion (comment_id, moderator_id) VALUES ($1, $2) RETURNING *',
+      [comment_id, moderator_id]
+    )
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Comment not found' })
+    }
     await client.query(deleteCommentQuery, [comment_id])
+
     res.status(200).json({ message: 'Comment deleted successfully' })
   } catch (err) {
     console.error('Error deleting comment:', err)
     res.status(500).json({ error: 'Internal Server Error' })
   }
 }
-
 const checkSession = async (req, res) => {
   const { moderator_id } = req.params
   try {

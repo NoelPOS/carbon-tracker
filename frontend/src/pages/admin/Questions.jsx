@@ -77,6 +77,7 @@ export default function Questions() {
         `http://localhost:3000/api/admin/questions/update/${questions[editingIndex].question_id}`,
         {
           question: newQuestion.question_title,
+          admin_id,
         }
       )
       // update all the options

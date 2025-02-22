@@ -44,6 +44,7 @@ export default function Moderators() {
           {
             moderator_id: id,
             status: 'suspended',
+            admin_id: JSON.parse(localStorage.getItem('admin')).admin_id,
           }
         )
 
@@ -121,7 +122,7 @@ export default function Moderators() {
             <img
               src={`https://avatar.iran.liara.run/username?username=${moderator.name}`}
               alt={moderator.name}
-              className='h-16 w-16 rounded-full object-cover mb-4'
+              className='h-16 w-16 rounded-full object-cover mb-4 '
             />
             <h3 className='font-semibold'>Name: {moderator.name}</h3>
             <p className='text-sm text-gray-600'>{moderator.email}</p>
