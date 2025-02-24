@@ -14,13 +14,13 @@ const getBadgesQuery = `SELECT * FROM Badge`
 
 const getUsersQuery = `SELECT * FROM Users`
 
-const updateTaskStatus = `UPDATE Task SET task_status = $1 WHERE task_id = $2 RETURNING *`
+const updateTaskStatus = `UPDATE Task SET task_status = $1 WHERE task_id = $2`
 
-const assignTaskQuery = `INSERT INTO Assign (task_id, moderator_id) VALUES ($1, $2) RETURNING *`
+const assignTaskQuery = `INSERT INTO Assign (task_id, moderator_id) VALUES ($1, $2)`
 
 const checkBadgeQuery = `SELECT * FROM Reward WHERE badge_id = $1 AND user_id = $2`
 
-const assignBadgeQuery = `INSERT INTO Reward (badge_id, user_id) VALUES ($1, $2) RETURNING *`
+const assignBadgeQuery = `INSERT INTO Reward (badge_id, user_id) VALUES ($1, $2)`
 
 const updateUserStatusQuery = `UPDATE Users SET status = $1 WHERE user_id = $2 RETURNING *`
 
@@ -48,6 +48,15 @@ const updateQuestionQuery = `UPDATE Question SET question_title = $1 WHERE quest
 
 const updateOptionQuery = `UPDATE Option SET option_name = $1, carbon_value = $2 WHERE option_id = $3 RETURNING *`
 
+const InsertIntoQuestionUpdateQuery =
+  'INSERT INTO question_edit (question_id, admin_id) VALUES ($1, $2)'
+
+const InsertIntoModeratorUpdateQuery =
+  'INSERT INTO moderator_update (moderator_id, admin_id) VALUES ($1, $2)'
+
+const InsertIntoUserUpdateQuery =
+  'INSERT INTO user_update (user_id, admin_id) VALUES ($1, $2)'
+
 module.exports = {
   adminSignInQuery,
   createTaskQuery,
@@ -74,4 +83,7 @@ module.exports = {
   getOptionsQuery,
   updateQuestionQuery,
   updateOptionQuery,
+  InsertIntoQuestionUpdateQuery,
+  InsertIntoModeratorUpdateQuery,
+  InsertIntoUserUpdateQuery,
 }

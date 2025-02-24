@@ -8,11 +8,21 @@ export default function ModeratorProfile() {
   })
 
   useEffect(() => {
-    const moderator = JSON.parse(localStorage.getItem('moderator'))
-    setProfileData({
-      name: moderator.name,
-      email: moderator.email,
-    })
+    const moderatorId = JSON.parse(
+      localStorage.getItem('moderator')
+    ).moderator_id
+    axios
+      .get(`http://localhost:3000/api/moderator/profile/${moderatorId}`)
+      .then((res) => {
+        setProfileData({
+          name: res.data.name,
+          email: res.data.email,
+        })
+      })
+      .catch((err) => {
+        console.error('Error fetching profile:', err)
+        alert('An error occurred. Please try again.')
+      })
   }, [])
 
   const handleSubmit = (e) => {

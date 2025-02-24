@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // User Imports
 import UserLayout from "./components/user/UserLayout";
-import Footer from "./components/Footer";
 import Home from "./pages/user/Home";
 import Articles from "./pages/user/Articles";
 import ArticleDetail from "./pages/user/ArticleDetail";

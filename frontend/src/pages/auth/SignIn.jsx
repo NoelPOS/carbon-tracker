@@ -31,14 +31,18 @@ export default function SignIn() {
         email: formData.email,
         password: formData.password,
       })
+      console.log(res.status)
+
       if (res.status === 200) {
         localStorage.setItem(`${role}`, JSON.stringify(res.data))
         navigate(`${ROLE_ROUTES[role]}`)
+      } else if (res.status === 403) {
+        setError(`${role} is suspended`)
       } else {
         alert('Invalid email or password')
       }
     } catch (err) {
-      setError('Invalid email or password')
+      setError(err.response.data.message)
     }
   }
 

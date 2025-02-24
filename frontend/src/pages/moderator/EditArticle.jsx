@@ -65,11 +65,10 @@ export default function EditArticle() {
       localStorage.getItem('moderator')
     ).moderator_id
     console.log(article)
-    const res = await axios.put(
+    await axios.put(
       `http://localhost:3000/api/moderator/article/${article_id}`,
       { ...article, moderator_id }
     )
-    console.log(res.data)
     navigate('/moderator/articles')
   }
 
@@ -82,23 +81,6 @@ export default function EditArticle() {
   }
 
   if (!article) return null
-  // example of article
-  // {
-  //   article_id: 1,
-  //   title: "Article Title",
-  //   subtitle: "Subtitle",
-  //   description: "Description",
-  //   img_url: "url",
-  //   moderator_id: 1,
-  //   comments: [
-  //     {
-  //       comment_id: 1,
-  //       content: "Comment content",
-  //       user_id: 1
-  //     },
-  //     // ... more comments if they exist
-  //   ]
-  // }
 
   return (
     <div className='mx-auto max-w-2xl space-y-8 p-4'>

@@ -11,6 +11,7 @@ const {
   deleteCommentQuery,
   checkStatusQuery,
   updateProfileQuery,
+  getModeratorProfileQuery,
 } = require('../queries/moderator.js')
 
 const ModeratorSignIn = async (req, res) => {
@@ -18,7 +19,11 @@ const ModeratorSignIn = async (req, res) => {
     const { email, password } = req.body
     console.log(email, password)
     const { rows } = await client.query(moderatorSignInQuery, [email, password])
-    if (rows.length === 0) {
+    console.log(rows[0])
+    // check if moderator is suspended
+    if (rows.length > 0 && rows[0].status === 'suspended') {
+      res.status(403).send('Moderator is suspended')
+    } else if (rows.length === 0) {
       res.status(401).send('Invalid email or password')
     } else {
       res.status(200).send(rows[0])
@@ -217,6 +222,22 @@ const updateProfile = async (req, res) => {
   }
 }
 
+const getProfile = async (req, res) => {
+  const { moderator_id } = req.params
+  try {
+    const { rows } = await client.query(getModeratorProfileQuery, [
+      moderator_id,
+    ])
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Moderator not found' })
+    }
+    res.status(200).json(rows[0])
+  } catch (err) {
+    console.error('Error fetching profile:', err)
+    res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
+
 module.exports = {
   ModeratorSignIn,
   getTasks,
@@ -228,4 +249,5 @@ module.exports = {
   deleteComment,
   checkSession,
   updateProfile,
+  getProfile,
 }
