@@ -29,6 +29,9 @@ const {
   InsertIntoQuestionUpdateQuery,
   InsertIntoModeratorUpdateQuery,
   InsertIntoUserUpdateQuery,
+  searchPendingArticlesQuery,
+  userSearchQuery,
+  moderatorSearchQuery,
 } = require('../queries/admin.js')
 
 const adminSignin = async (req, res) => {
@@ -94,11 +97,23 @@ const createBadge = async (req, res) => {
 }
 
 const getModerators = async (req, res) => {
-  try {
-    const moderators = await client.query(getModeratorsQuery)
-    res.status(200).json(moderators.rows)
-  } catch (err) {
-    res.status(500).json({ message: err.message })
+  const { search } = req.query
+  if (search) {
+    try {
+      const moderators = await client.query(moderatorSearchQuery, [
+        `%${search}%`,
+      ])
+      res.status(200).json(moderators.rows)
+    } catch (err) {
+      res.status(500).json({ message: err.message })
+    }
+  } else {
+    try {
+      const moderators = await client.query(getModeratorsQuery)
+      res.status(200).json(moderators.rows)
+    } catch (err) {
+      res.status(500).json({ message: err.message })
+    }
   }
 }
 
@@ -121,11 +136,21 @@ const getBadges = async (req, res) => {
 }
 
 const getUsers = async (req, res) => {
-  try {
-    const users = await client.query(getUsersQuery)
-    res.status(200).json(users.rows)
-  } catch (err) {
-    res.status(500).json({ message: err.message })
+  const { search } = req.query
+  if (search) {
+    try {
+      const users = await client.query(userSearchQuery, [`%${search}%`])
+      res.status(200).json(users.rows)
+    } catch (err) {
+      res.status(500).json({ message: err.message })
+    }
+  } else {
+    try {
+      const users = await client.query(getUsersQuery)
+      res.status(200).json(users.rows)
+    } catch (err) {
+      res.status(500).json({ message: err.message })
+    }
   }
 }
 
@@ -210,11 +235,24 @@ const deleteModerator = async (req, res) => {
 }
 
 const getArticles = async (req, res) => {
-  try {
-    const articles = await client.query(getPendingArticlesQuery, ['pending'])
-    res.status(200).json(articles.rows)
-  } catch (err) {
-    res.status(500).json({ message: err.message })
+  const { search } = req.query
+  if (search) {
+    try {
+      const articles = await client.query(searchPendingArticlesQuery, [
+        `%${search}%`,
+        'pending',
+      ])
+      res.status(200).json(articles.rows)
+    } catch (err) {
+      res.status(500).json({ message: err.message })
+    }
+  } else {
+    try {
+      const articles = await client.query(getPendingArticlesQuery, ['pending'])
+      res.status(200).json(articles.rows)
+    } catch (err) {
+      res.status(500).json({ message: err.message })
+    }
   }
 }
 

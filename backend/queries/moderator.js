@@ -36,6 +36,8 @@ const getModeratorProfileQuery = `SELECT * FROM Moderator WHERE moderator_id = $
 
 const updateProfileQuery = `UPDATE Moderator SET name = $1, email = $2 WHERE moderator_id = $3 RETURNING *`
 
+const articleSearchQuery = `SELECT * FROM article WHERE title ILIKE $1 AND status = $2 AND moderator_id = $3`
+
 module.exports = {
   moderatorSignInQuery,
   getTasksQuery,
@@ -49,4 +51,5 @@ module.exports = {
   checkStatusQuery,
   updateProfileQuery,
   getModeratorProfileQuery,
+  articleSearchQuery,
 }

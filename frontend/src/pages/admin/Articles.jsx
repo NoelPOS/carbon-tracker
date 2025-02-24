@@ -73,27 +73,48 @@ export default function Articles() {
     }
   }
 
-  const filteredArticles = articles.filter((article) =>
-    article.title.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await axios.get(
+        `http://localhost:3000/api/admin/articles?search=${searchQuery}`
+      )
+      console.log('Articles:', res.data)
+      setArticles(res.data)
+      setSearchQuery('')
+    } catch (err) {
+      console.error('Error fetching articles:', err)
+    }
+  }
 
   return (
     <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
       <h1 className='mb-6 text-2xl font-bold'>Articles Management</h1>
 
       <div className='mb-6'>
-        <input
-          type='text'
-          placeholder='Enter Article Name'
-          className='w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+        <form
+          className='flex items-center justify-between'
+          onSubmit={handleSubmit}
+        >
+          <input
+            type='text'
+            placeholder='Enter Article Name'
+            className='w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <button
+            type='submit'
+            className='ml-4 rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600'
+          >
+            Search
+          </button>
+        </form>
       </div>
 
       <div className='space-y-6'>
-        {filteredArticles.length > 0 ? (
-          filteredArticles.map((article) => (
+        {articles.length > 0 ? (
+          articles.map((article) => (
             <div key={article.id} className='rounded-lg bg-white p-6 shadow-sm'>
               <div className='flex gap-6'>
                 <img

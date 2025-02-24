@@ -12,6 +12,7 @@ const {
   checkStatusQuery,
   updateProfileQuery,
   getModeratorProfileQuery,
+  articleSearchQuery,
 } = require('../queries/moderator.js')
 
 const ModeratorSignIn = async (req, res) => {
@@ -91,13 +92,29 @@ const createArticle = async (req, res) => {
 }
 
 const getAllArticles = async (req, res) => {
+  // check if query parameter is present
+
   const { moderator_id } = req.params
-  try {
-    const { rows } = await client.query(getAllArticlesQuery, [moderator_id])
-    res.status(200).json(rows)
-  } catch (err) {
-    console.error('Error fetching articles:', err)
-    res.status(500).json({ error: 'Internal Server Error' })
+  if (!req.query.search) {
+    try {
+      const { rows } = await client.query(getAllArticlesQuery, [moderator_id])
+      res.status(200).json(rows)
+    } catch (err) {
+      console.error('Error fetching articles:', err)
+      res.status(500).json({ error: 'Internal Server Error' })
+    }
+  } else {
+    try {
+      const { rows } = await client.query(articleSearchQuery, [
+        `%${req.query.search}%`,
+        'approved',
+        moderator_id,
+      ])
+      res.status(200).json(rows)
+    } catch (err) {
+      console.error('Error fetching articles:', err)
+      res.status(500).json({ error: 'Internal Server Error' })
+    }
   }
 }
 

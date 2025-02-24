@@ -57,6 +57,14 @@ const InsertIntoModeratorUpdateQuery =
 const InsertIntoUserUpdateQuery =
   'INSERT INTO user_update (user_id, admin_id) VALUES ($1, $2)'
 
+const articleSearchQuery = `SELECT * FROM article WHERE title ILIKE $1 AND status = $2`
+
+const userSearchQuery = `SELECT * FROM users WHERE fullname ILIKE $1`
+
+const moderatorSearchQuery = `SELECT * FROM moderator WHERE name ILIKE $1`
+
+const searchPendingArticlesQuery = `SELECT * FROM article WHERE title ILIKE $1 AND status = $2`
+
 module.exports = {
   adminSignInQuery,
   createTaskQuery,
@@ -86,4 +94,8 @@ module.exports = {
   InsertIntoQuestionUpdateQuery,
   InsertIntoModeratorUpdateQuery,
   InsertIntoUserUpdateQuery,
+  articleSearchQuery,
+  userSearchQuery,
+  moderatorSearchQuery,
+  searchPendingArticlesQuery,
 }

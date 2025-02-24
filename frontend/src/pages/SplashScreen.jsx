@@ -4,7 +4,7 @@ export default function SplashScreen() {
   const navigate = useNavigate()
 
   const handleGetStarted = () => {
-    navigate('/auth/signup')
+    navigate('/auth/signin')
   }
 
   return (

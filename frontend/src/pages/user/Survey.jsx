@@ -119,7 +119,7 @@ export default function Survey() {
         })
         .then(() => {
           alert('Record saved successfully!')
-          navigate('/dashboard')
+          navigate('/user')
         })
     } else if (
       last_survey !== today &&
@@ -140,7 +140,7 @@ export default function Survey() {
         })
         .then(() => {
           alert('Record saved successfully!')
-          navigate('/dashboard')
+          navigate('/user')
         })
     } else {
       alert('You have already taken the survey today!')
@@ -171,9 +171,6 @@ export default function Survey() {
               <thead>
                 <tr className='border-b'>
                   <th className='px-6 py-3 text-left text-sm font-medium text-gray-500'>
-                    Record Number
-                  </th>
-                  <th className='px-6 py-3 text-left text-sm font-medium text-gray-500'>
                     Date
                   </th>
                   <th className='px-6 py-3 text-left text-sm font-medium text-gray-500'>
@@ -184,7 +181,6 @@ export default function Survey() {
               <tbody>
                 {displayedRecords.map((record) => (
                   <tr key={record.record_id} className='border-b'>
-                    <td className='px-6 py-4'>{record.record_id}</td>
                     <td className='px-6 py-4'>
                       {formatDate(record.survey_date)}
                     </td>

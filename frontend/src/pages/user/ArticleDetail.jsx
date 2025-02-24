@@ -93,10 +93,13 @@ export default function ArticleDetail() {
           content: replyContent[commentId],
         }
       )
-      console.log(res.data)
+      const dataToAppend = {
+        ...res.data,
+        fullname: JSON.parse(localStorage.getItem('users')).fullname,
+      }
       setReplies((prev) => ({
         ...prev,
-        [commentId]: [...(prev[commentId] || []), res.data],
+        [commentId]: [...(prev[commentId] || []), dataToAppend],
       }))
       setReplyContent((prev) => ({ ...prev, [commentId]: undefined }))
     } catch (err) {
