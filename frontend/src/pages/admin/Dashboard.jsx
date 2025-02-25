@@ -151,14 +151,11 @@ const Dashboard = () => {
     form.reset()
 
     try {
-      const res = await axios.post(
-        'http://localhost:3000/api/admin/create/moderator',
-        {
-          name,
-          email,
-          password,
-        }
-      )
+      await axios.post('http://localhost:3000/api/admin/create/moderator', {
+        name,
+        email,
+        password,
+      })
       // console.log(res.data);
       alert('Moderator created successfully')
       window.location.reload()

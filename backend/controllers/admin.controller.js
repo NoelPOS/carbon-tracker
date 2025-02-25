@@ -248,7 +248,7 @@ const getArticles = async (req, res) => {
     }
   } else {
     try {
-      const articles = await client.query(getPendingArticlesQuery, ['pending'])
+      const articles = await client.query(getPendingArticlesQuery)
       res.status(200).json(articles.rows)
     } catch (err) {
       res.status(500).json({ message: err.message })
@@ -260,8 +260,8 @@ const updateArticle = async (req, res) => {
   try {
     const { id } = req.params
     const { action } = req.body
-    const article = await client.query(updateArticleStatusQuery, [action, id])
-    res.status(200).json(article.rows[0])
+    await client.query(updateArticleStatusQuery, [action, id])
+    res.status(200).json({ message: 'Article updated successfully' })
   } catch (err) {
     res.status(500).json({ message: err.message })
   }

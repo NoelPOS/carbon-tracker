@@ -61,11 +61,10 @@ export default function Articles() {
 
   const handleAction = async (id, action) => {
     try {
-      const res = await axios.put(
-        `http://localhost:3000/api/admin/article/${id}`,
-        { action }
-      )
-      console.log(res.data)
+      await axios.put(`http://localhost:3000/api/admin/article/${id}`, {
+        action,
+      })
+
       window.location.reload()
       alert(`Article has been ${action}.`)
     } catch (err) {
@@ -125,7 +124,7 @@ export default function Articles() {
                 <div className='flex-grow'>
                   <div className='flex items-center gap-2'>
                     <span className='text-sm text-gray-600'>
-                      Moderator - {article.moderator_id}
+                      Moderator - {article.name}
                     </span>
                   </div>
                   <h3 className='mt-2 text-lg font-semibold'>

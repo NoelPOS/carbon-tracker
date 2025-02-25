@@ -2,7 +2,7 @@ const adminSignInQuery = `SELECT * FROM Admin WHERE email = $1 AND password = $2
 
 const createTaskQuery = `INSERT INTO Task (task_title, task_desc, admin_id) VALUES ($1, $2, $3) RETURNING *`
 
-const createModeratorQuery = `INSERT INTO Moderator (name, email, password) VALUES ($1, $2, $3) RETURNING *`
+const createModeratorQuery = `INSERT INTO Moderator (name, email, password) VALUES ($1, $2, $3)`
 
 const createBadgeQuery = `INSERT INTO Badge (admin_id, badge_desc, badge_url) VALUES ($1, $2, $3) RETURNING *`
 
@@ -29,10 +29,38 @@ const updateModeratorStatusQuery = `UPDATE Moderator SET status = $1 WHERE moder
 const deleteUserQuery = `DELETE FROM Users WHERE user_id = $1 RETURNING *`
 
 const deleteModeratorQuery = `DELETE FROM Moderator WHERE moderator_id = $1 RETURNING *`
+// CREATE TABLE Article (
+//     article_id SERIAL PRIMARY KEY,
+//     title VARCHAR(255) NOT NULL,
+//     subtitle VARCHAR(255),
+//     description TEXT NOT NULL,
+//     img_url VARCHAR(255),
+//     status VARCHAR(10) CHECK (status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending',
+//     moderator_id INT REFERENCES Moderator(moderator_id) ON DELETE CASCADE ON UPDATE CASCADE
+// );
 
-const getPendingArticlesQuery = `SELECT * FROM Article WHERE status = $1`
+// CREATE TABLE Moderator (
+//     moderator_id SERIAL PRIMARY KEY,
+// 	name VARCHAR(255),
+//     email VARCHAR(255) UNIQUE NOT NULL,
+//     password VARCHAR(255) NOT NULL,
+//     status VARCHAR(10) CHECK (status IN ('active', 'suspended')) DEFAULT 'active'
+// 	admin_id INTEGER NOT NULL,
+//     CONSTRAINT fk_moderator_admin FOREIGN KEY (admin_id)
+//         REFERENCES admin(admin_id)
+//         ON DELETE CASCADE
+// );
 
-const updateArticleStatusQuery = `UPDATE Article SET status = $1 WHERE article_id = $2 RETURNING *`
+// join with article table and moderator table to get moderator name
+const getPendingArticlesQuery = `
+SELECT *
+FROM Article
+JOIN Moderator
+ON Article.moderator_id = Moderator.moderator_id
+WHERE Article.status = 'pending'
+`
+
+const updateArticleStatusQuery = `UPDATE Article SET status = $1 WHERE article_id = $2`
 
 const getQuestionsQuery = `SELECT * FROM Question`
 
